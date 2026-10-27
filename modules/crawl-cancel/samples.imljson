@@ -1,0 +1,6 @@
+{
+    "job_id": "0e7c6e2a-1234-4abc-9def-5678901234ab",
+    "status": "cancelled",
+    "status_url": "/v1/crawl/0e7c6e2a-1234-4abc-9def-5678901234ab",
+    "in_flight_pages": 3
+}

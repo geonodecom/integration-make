@@ -1,0 +1,80 @@
+[
+    {
+        "name": "urls",
+        "type": "array",
+        "label": "URLs",
+        "required": true,
+        "spec": { "type": "url" }
+    },
+    { "name": "ignore_invalid_urls", "type": "boolean", "label": "Ignore Invalid URLs", "default": true },
+    {
+        "name": "formats",
+        "type": "select",
+        "label": "Output Formats",
+        "multiple": true,
+        "default": ["markdown"],
+        "options": [
+            { "label": "HTML", "value": "html" },
+            { "label": "Markdown", "value": "markdown" }
+        ]
+    },
+    { "name": "render_js", "type": "boolean", "label": "Render JavaScript", "default": false },
+    {
+        "name": "wait_until",
+        "type": "select",
+        "label": "Wait Until",
+        "help": "Browser lifecycle event to wait for before extracting each item. Any wait option auto-enables Render JavaScript.",
+        "options": [
+            { "label": "Commit", "value": "commit" },
+            { "label": "DOM Content Loaded", "value": "domcontentloaded" },
+            { "label": "Load", "value": "load" },
+            { "label": "Network Idle", "value": "networkidle" }
+        ]
+    },
+    {
+        "name": "wait_for",
+        "type": "text",
+        "label": "Wait For Selector",
+        "help": "CSS selector or XPath to wait for before extracting each item's DOM. Auto-enables Render JavaScript."
+    },
+    {
+        "name": "wait_timeout",
+        "type": "uinteger",
+        "label": "Wait Timeout (ms)",
+        "help": "Exact post-ready delay in milliseconds (0–30000) before extracting each item's DOM. Auto-enables Render JavaScript.",
+        "validate": { "max": 30000 }
+    },
+    {
+        "name": "proxy_country",
+        "type": "text",
+        "label": "Proxy Country",
+        "validate": { "pattern": "^[A-Z]{2}$" }
+    },
+    {
+        "name": "proxy_type",
+        "type": "select",
+        "label": "Proxy Type",
+        "default": "residential",
+        "options": [
+            { "label": "Residential", "value": "residential" },
+            { "label": "Datacenter", "value": "datacenter" }
+        ]
+    },
+    {
+        "name": "headers",
+        "type": "array",
+        "label": "Custom HTTP Headers",
+        "spec": [
+            { "name": "key", "type": "text", "label": "Name", "required": true },
+            { "name": "value", "type": "text", "label": "Value", "required": true }
+        ]
+    },
+    {
+        "name": "results_page_size",
+        "type": "uinteger",
+        "label": "Results Page Size",
+        "default": 50
+    },
+    { "name": "poll_interval_seconds", "type": "uinteger", "label": "Poll Interval (s)", "default": 10 },
+    { "name": "max_attempts", "type": "uinteger", "label": "Max Poll Attempts", "default": 60 }
+]

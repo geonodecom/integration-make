@@ -1,0 +1,7 @@
+{
+    "label": "Cancel a Crawl",
+    "description": "Stops scheduling new crawl pages and lets in-flight page work drain. Returns immediately with the cancellation acknowledgement.",
+    "typeId": 4,
+    "actionType": "delete",
+    "connection": "api-key"
+}

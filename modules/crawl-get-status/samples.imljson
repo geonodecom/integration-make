@@ -1,0 +1,31 @@
+{
+    "job_id": "0e7c6e2a-1234-4abc-9def-5678901234ab",
+    "url": "https://example.com",
+    "status": "processing",
+    "crawl_config": {
+        "render_js": true,
+        "formats": ["markdown"],
+        "same_domain_only": true,
+        "include_subdomains": false,
+        "proxy": { "country": "US", "type": "residential" },
+        "wait_config": { "wait_until": "domcontentloaded", "wait_for": null, "wait_timeout": 750 }
+    },
+    "token_summary": { "tokens_charged_total": 12, "tokens_reserved": 8 },
+    "total_pages": 20,
+    "completed_pages": 12,
+    "failed_pages": 0,
+    "cancelled_pages": 0,
+    "created_at": "2026-05-22T12:00:00Z",
+    "completed_at": null,
+    "results": [
+        {
+            "url": "https://example.com/about",
+            "parent_url": "https://example.com",
+            "depth": 1,
+            "status": "completed",
+            "links": ["https://example.com/team"],
+            "data": { "markdown": "# About" },
+            "metadata": { "http_status": 200, "duration_ms": 712, "retry_count": 0, "tokens_charged": 1 }
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+﻿{
+    "url": "/extract/{{parameters.job_id}}",
+    "method": "GET",
+    "response": {
+        "output": "{{body}}"
+    }
+}

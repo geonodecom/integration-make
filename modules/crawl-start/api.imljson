@@ -1,0 +1,25 @@
+﻿{
+    "url": "/crawl",
+    "method": "POST",
+    "body": {
+        "url": "{{parameters.url}}",
+        "depth": "{{parameters.depth}}",
+        "limit": "{{parameters.limit}}",
+        "formats": "{{parameters.formats}}",
+        "render_js": "{{if(ifempty(parameters.wait_for, ifempty(parameters.wait_until, parameters.wait_timeout)), true, parameters.render_js)}}",
+        "same_domain_only": "{{parameters.same_domain_only}}",
+        "include_subdomains": "{{parameters.include_subdomains}}",
+        "proxy": {
+            "country": "{{parameters.proxy_country}}",
+            "type": "{{parameters.proxy_type}}"
+        },
+        "wait_config": {
+            "wait_until": "{{parameters.wait_until}}",
+            "wait_for": "{{parameters.wait_for}}",
+            "wait_timeout": "{{parameters.wait_timeout}}"
+        }
+    },
+    "response": {
+        "output": "{{body}}"
+    }
+}

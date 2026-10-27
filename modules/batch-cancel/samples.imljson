@@ -1,0 +1,6 @@
+{
+    "job_id": "b1234567-89ab-cdef-0123-456789abcdef",
+    "status": "cancelled",
+    "status_url": "/v1/batch/b1234567-89ab-cdef-0123-456789abcdef",
+    "in_flight_urls": 1
+}

@@ -1,0 +1,38 @@
+﻿[
+    {
+        "url": "/extract",
+        "method": "POST",
+        "body": {
+            "url": "{{parameters.url}}",
+            "formats": "{{parameters.formats}}",
+            "render_js": "{{if(ifempty(parameters.wait_for, ifempty(parameters.wait_until, parameters.wait_timeout)), true, parameters.render_js)}}",
+            "processing_mode": "async",
+            "proxy": {
+                "country": "{{parameters.proxy_country}}",
+                "type": "{{parameters.proxy_type}}"
+            },
+            "wait_config": {
+                "wait_until": "{{parameters.wait_until}}",
+                "wait_for": "{{parameters.wait_for}}",
+                "wait_timeout": "{{parameters.wait_timeout}}"
+            },
+            "headers": "{{toCollection(parameters.headers, 'key', 'value')}}"
+        },
+        "response": {
+            "temp": { "job_id": "{{body.job_id}}" }
+        }
+    },
+    {
+        "url": "/extract/{{temp.job_id}}",
+        "method": "GET",
+        "response": {
+            "valid": {
+                "condition": "{{body.status === 'completed' || body.status === 'failed' || body.status === 'cancelled'}}",
+                "message": "Extraction job timed out before completion (last status: {{body.status}})"
+            },
+            "wait": "{{parameters.poll_interval_seconds * 1000}}",
+            "maxRetries": "{{parameters.max_attempts}}",
+            "output": "{{body}}"
+        }
+    }
+]

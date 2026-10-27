@@ -1,0 +1,8 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID" },
+    { "name": "status", "type": "text", "label": "Status" },
+    { "name": "url", "type": "url", "label": "URL" },
+    { "name": "created_at", "type": "date", "label": "Created At" },
+    { "name": "execution_time", "type": "number", "label": "Execution Time (ms)" },
+    { "name": "output", "type": "array", "label": "Output Formats", "spec": { "type": "text" } }
+]

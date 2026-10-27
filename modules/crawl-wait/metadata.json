@@ -1,0 +1,7 @@
+{
+    "label": "Start a Crawl (Wait for Completion)",
+    "description": "Helper that starts a crawl, polls until the job reaches a terminal state (or the timeout is reached), and returns the final status with the first page of results. Best for low-volume scenarios — long polls hold a scenario operation open.",
+    "typeId": 4,
+    "actionType": "create",
+    "connection": "api-key"
+}

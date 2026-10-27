@@ -1,0 +1,20 @@
+﻿{
+    "url": "https://scraper.geonode.io/v1/statistics",
+    "method": "GET",
+    "headers": {
+        "X-Api-Key": "{{parameters.apiKey}}",
+        "X-Geonode-Client": "make/1"
+    },
+    "response": {
+        "error": {
+            "type": {
+                "401": "InvalidAccessTokenError",
+                "403": "InvalidAccessTokenError"
+            },
+            "message": "[{{statusCode}}] {{ifempty(body.code, 'ERROR')}}: {{ifempty(body.message, 'Invalid API key')}}"
+        },
+        "data": {
+            "apiKey": "{{parameters.apiKey}}"
+        }
+    }
+}

@@ -1,0 +1,34 @@
+[
+    { "name": "job_id", "type": "text", "label": "Filter: Job ID" },
+    { "name": "url", "type": "url", "label": "Filter: URL" },
+    {
+        "name": "status",
+        "type": "select",
+        "label": "Filter: Status",
+        "options": [
+            { "label": "Queued", "value": "queued" },
+            { "label": "Processing", "value": "processing" },
+            { "label": "Completed", "value": "completed" },
+            { "label": "Failed", "value": "failed" },
+            { "label": "Cancelled", "value": "cancelled" }
+        ]
+    },
+    {
+        "name": "output",
+        "type": "select",
+        "label": "Filter: Output Format",
+        "options": [
+            { "label": "HTML", "value": "html" },
+            { "label": "Markdown", "value": "markdown" }
+        ]
+    },
+    { "name": "start_date", "type": "date", "label": "Filter: Start Date" },
+    { "name": "end_date", "type": "date", "label": "Filter: End Date" },
+    {
+        "name": "limit",
+        "type": "uinteger",
+        "label": "Max Results",
+        "help": "Maximum number of jobs to return across pages. Page size is fixed to 100.",
+        "default": 100
+    }
+]

@@ -1,0 +1,77 @@
+[
+    {
+        "name": "url",
+        "type": "url",
+        "label": "URL",
+        "help": "The URL to extract content from.",
+        "required": true
+    },
+    {
+        "name": "formats",
+        "type": "select",
+        "label": "Output Formats",
+        "multiple": true,
+        "default": ["html"],
+        "options": [
+            { "label": "HTML", "value": "html" },
+            { "label": "Markdown", "value": "markdown" }
+        ]
+    },
+    {
+        "name": "render_js",
+        "type": "boolean",
+        "label": "Render JavaScript",
+        "default": false
+    },
+    {
+        "name": "wait_until",
+        "type": "select",
+        "label": "Wait Until",
+        "help": "Browser lifecycle event to wait for before extracting. Any wait option auto-enables Render JavaScript.",
+        "options": [
+            { "label": "Commit", "value": "commit" },
+            { "label": "DOM Content Loaded", "value": "domcontentloaded" },
+            { "label": "Load", "value": "load" },
+            { "label": "Network Idle", "value": "networkidle" }
+        ]
+    },
+    {
+        "name": "wait_for",
+        "type": "text",
+        "label": "Wait For Selector",
+        "help": "CSS selector or XPath to wait for before extracting the DOM. Auto-enables Render JavaScript."
+    },
+    {
+        "name": "wait_timeout",
+        "type": "uinteger",
+        "label": "Wait Timeout (ms)",
+        "help": "Exact post-ready delay in milliseconds (0–30000) before extracting the DOM. Auto-enables Render JavaScript.",
+        "validate": { "max": 30000 }
+    },
+    {
+        "name": "proxy_country",
+        "type": "text",
+        "label": "Proxy Country",
+        "help": "ISO 3166-1 alpha-2 country code (e.g., US, GB).",
+        "validate": { "pattern": "^[A-Z]{2}$" }
+    },
+    {
+        "name": "proxy_type",
+        "type": "select",
+        "label": "Proxy Type",
+        "default": "residential",
+        "options": [
+            { "label": "Residential", "value": "residential" },
+            { "label": "Datacenter", "value": "datacenter" }
+        ]
+    },
+    {
+        "name": "headers",
+        "type": "array",
+        "label": "Custom HTTP Headers",
+        "spec": [
+            { "name": "key", "type": "text", "label": "Name", "required": true },
+            { "name": "value", "type": "text", "label": "Value", "required": true }
+        ]
+    }
+]

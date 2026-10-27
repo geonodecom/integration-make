@@ -1,0 +1,15 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID", "required": true },
+    {
+        "name": "page",
+        "type": "uinteger",
+        "label": "Results Page",
+        "default": 1
+    },
+    {
+        "name": "page_size",
+        "type": "uinteger",
+        "label": "Results Page Size",
+        "default": 50
+    }
+]

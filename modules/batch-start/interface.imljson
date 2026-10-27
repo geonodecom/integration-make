@@ -1,0 +1,12 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID" },
+    { "name": "status", "type": "text", "label": "Status" },
+    { "name": "status_url", "type": "text", "label": "Status URL" },
+    { "name": "accepted_urls", "type": "number", "label": "Accepted URL Count" },
+    {
+        "name": "invalid_urls",
+        "type": "array",
+        "label": "Rejected URLs",
+        "spec": { "type": "text" }
+    }
+]

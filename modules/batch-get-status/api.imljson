@@ -1,0 +1,11 @@
+﻿{
+    "url": "/batch/{{parameters.job_id}}",
+    "method": "GET",
+    "qs": {
+        "page": "{{parameters.page}}",
+        "page_size": "{{parameters.page_size}}"
+    },
+    "response": {
+        "output": "{{body}}"
+    }
+}

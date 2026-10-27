@@ -1,0 +1,13 @@
+{
+    "extraction_count": 1284,
+    "previous_period_extraction_count": 1102,
+    "success_rate": 0.97,
+    "average_extraction_duration": 911,
+    "period_tokens_used": 1284,
+    "requests": [
+        { "date": "2026-05-21T00:00:00Z", "success_request_count": 42, "failed_request_count": 1 }
+    ],
+    "tokens_used": [
+        { "date": "2026-05-21T00:00:00Z", "tokens_used": 43 }
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "label": "Get Usage Statistics",
+    "description": "Retrieves aggregated extraction statistics (counts, success rate, token usage, daily series) for a given date range. Defaults to the last 30 days when no range is supplied.",
+    "typeId": 4,
+    "actionType": "read",
+    "connection": "api-key"
+}

@@ -1,0 +1,7 @@
+{
+    "label": "Extract a URL (Wait for Completion)",
+    "description": "Helper that queues an async extraction, polls until the job finishes (or the timeout is reached), and returns the final result in a single step. Best for low-volume scenarios — long polls hold a scenario operation open.",
+    "typeId": 4,
+    "actionType": "create",
+    "connection": "api-key"
+}

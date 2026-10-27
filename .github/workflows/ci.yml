@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check the client header
+        run: python scripts/test_client_header.py
+
+      - name: Check that every app file is valid JSON
+        run: |
+          python - <<'PY'
+          import json
+          import pathlib
+
+          files = [pathlib.Path("base.imljson"), pathlib.Path("metadata.json")]
+          for folder in ("connections", "modules"):
+              files += sorted(pathlib.Path(folder).rglob("*.json")) + sorted(pathlib.Path(folder).rglob("*.imljson"))
+          for path in files:
+              json.loads(path.read_text(encoding="utf-8-sig"))
+          print(f"{len(files)} files parsed")
+          PY

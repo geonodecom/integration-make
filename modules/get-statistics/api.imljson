@@ -1,0 +1,11 @@
+﻿{
+    "url": "/statistics",
+    "method": "GET",
+    "qs": {
+        "start_date": "{{parameters.start_date}}",
+        "end_date": "{{parameters.end_date}}"
+    },
+    "response": {
+        "output": "{{body}}"
+    }
+}

@@ -1,0 +1,17 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID", "required": true },
+    {
+        "name": "page",
+        "type": "uinteger",
+        "label": "Results Page",
+        "help": "Page number for the slice of crawl page results to return.",
+        "default": 1
+    },
+    {
+        "name": "page_size",
+        "type": "uinteger",
+        "label": "Results Page Size",
+        "help": "Number of crawled page results to return in this slice.",
+        "default": 50
+    }
+]

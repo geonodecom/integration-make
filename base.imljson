@@ -1,0 +1,33 @@
+{
+    "baseUrl": "https://scraper.geonode.io/v1",
+    "headers": {
+        "X-Api-Key": "{{connection.apiKey}}",
+        "X-Geonode-Client": "make/1",
+        "Accept": "application/json"
+    },
+    "response": {
+        "error": {
+            "type": {
+                "400": "DataError",
+                "401": "InvalidAccessTokenError",
+                "402": "DataError",
+                "403": "DataError",
+                "404": "DataError",
+                "408": "ConnectionError",
+                "409": "DataError",
+                "422": "DataError",
+                "429": "RateLimitError",
+                "500": "RuntimeError",
+                "502": "ConnectionError",
+                "503": "ConnectionError",
+                "504": "ConnectionError"
+            },
+            "message": "[{{statusCode}}] {{ifempty(body.code, 'ERROR')}}: {{ifempty(body.message, 'Unknown error')}}"
+        }
+    },
+    "log": {
+        "sanitize": [
+            "request.headers.x-api-key"
+        ]
+    }
+}

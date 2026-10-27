@@ -1,0 +1,28 @@
+﻿{
+    "url": "/extract/jobs",
+    "method": "GET",
+    "qs": {
+        "job_id": "{{parameters.job_id}}",
+        "url": "{{parameters.url}}",
+        "status": "{{parameters.status}}",
+        "output": "{{parameters.output}}",
+        "start_date": "{{parameters.start_date}}",
+        "end_date": "{{parameters.end_date}}",
+        "page": "{{ifempty(temp.next_page, 1)}}",
+        "page_size": 100
+    },
+    "response": {
+        "iterate": "{{body.jobs}}",
+        "limit": "{{parameters.limit}}",
+        "output": "{{item}}",
+        "temp": {
+            "next_page": "{{if(body.page < body.page_count, body.page + 1, null)}}"
+        }
+    },
+    "pagination": {
+        "condition": "{{temp.next_page !== null}}",
+        "qs": {
+            "page": "{{temp.next_page}}"
+        }
+    }
+}

@@ -1,0 +1,87 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID" },
+    { "name": "url", "type": "url", "label": "Seed URL" },
+    { "name": "status", "type": "text", "label": "Status" },
+    {
+        "name": "crawl_config",
+        "type": "collection",
+        "label": "Crawl Config",
+        "spec": [
+            { "name": "render_js", "type": "boolean", "label": "Rendered with JS" },
+            { "name": "formats", "type": "array", "label": "Formats", "spec": { "type": "text" } },
+            { "name": "same_domain_only", "type": "boolean", "label": "Same Domain Only" },
+            { "name": "include_subdomains", "type": "boolean", "label": "Include Subdomains" },
+            {
+                "name": "proxy",
+                "type": "collection",
+                "label": "Proxy",
+                "spec": [
+                    { "name": "country", "type": "text", "label": "Country" },
+                    { "name": "type", "type": "text", "label": "Type" }
+                ]
+            },
+            {
+                "name": "wait_config",
+                "type": "collection",
+                "label": "Wait Config",
+                "spec": [
+                    { "name": "wait_until", "type": "text", "label": "Wait Until" },
+                    { "name": "wait_for", "type": "text", "label": "Wait For Selector" },
+                    { "name": "wait_timeout", "type": "number", "label": "Wait Timeout (ms)" }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "token_summary",
+        "type": "collection",
+        "label": "Token Summary",
+        "spec": [
+            { "name": "tokens_charged_total", "type": "number", "label": "Tokens Charged Total" },
+            { "name": "tokens_reserved", "type": "number", "label": "Tokens Reserved" }
+        ]
+    },
+    { "name": "total_pages", "type": "number", "label": "Total Pages Discovered" },
+    { "name": "completed_pages", "type": "number", "label": "Completed Pages" },
+    { "name": "failed_pages", "type": "number", "label": "Failed Pages" },
+    { "name": "cancelled_pages", "type": "number", "label": "Cancelled Pages" },
+    { "name": "created_at", "type": "date", "label": "Created At" },
+    { "name": "completed_at", "type": "date", "label": "Completed At" },
+    {
+        "name": "results",
+        "type": "array",
+        "label": "Page Results (slice)",
+        "spec": {
+            "type": "collection",
+            "spec": [
+                { "name": "url", "type": "url", "label": "URL" },
+                { "name": "parent_url", "type": "url", "label": "Parent URL" },
+                { "name": "depth", "type": "number", "label": "Depth" },
+                { "name": "status", "type": "text", "label": "Status" },
+                { "name": "error_code", "type": "text", "label": "Error Code" },
+                { "name": "error_message", "type": "text", "label": "Error Message" },
+                { "name": "links", "type": "array", "label": "Links", "spec": { "type": "url" } },
+                {
+                    "name": "data",
+                    "type": "collection",
+                    "label": "Data",
+                    "spec": [
+                        { "name": "html", "type": "text", "label": "HTML" },
+                        { "name": "markdown", "type": "text", "label": "Markdown" }
+                    ]
+                },
+                {
+                    "name": "metadata",
+                    "type": "collection",
+                    "label": "Metadata",
+                    "spec": [
+                        { "name": "http_status", "type": "number", "label": "HTTP Status" },
+                        { "name": "duration_ms", "type": "number", "label": "Duration (ms)" },
+                        { "name": "retry_count", "type": "number", "label": "Retry Count" },
+                        { "name": "tokens_charged", "type": "number", "label": "Tokens Charged" }
+                    ]
+                }
+            ]
+        }
+    }
+]

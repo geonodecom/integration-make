@@ -1,0 +1,96 @@
+[
+    {
+        "name": "url",
+        "type": "url",
+        "label": "Seed URL",
+        "help": "URL to start crawling from.",
+        "required": true
+    },
+    {
+        "name": "depth",
+        "type": "uinteger",
+        "label": "Depth",
+        "help": "Maximum BFS depth from the seed URL (1 = seed only).",
+        "default": 2
+    },
+    {
+        "name": "limit",
+        "type": "uinteger",
+        "label": "Page Limit",
+        "help": "Maximum number of pages to crawl.",
+        "default": 50
+    },
+    {
+        "name": "formats",
+        "type": "select",
+        "label": "Output Formats",
+        "multiple": true,
+        "default": ["markdown"],
+        "options": [
+            { "label": "HTML", "value": "html" },
+            { "label": "Markdown", "value": "markdown" }
+        ]
+    },
+    {
+        "name": "render_js",
+        "type": "boolean",
+        "label": "Render JavaScript",
+        "default": false
+    },
+    {
+        "name": "wait_until",
+        "type": "select",
+        "label": "Wait Until",
+        "help": "Browser lifecycle event to wait for before extracting each page. Any wait option auto-enables Render JavaScript.",
+        "options": [
+            { "label": "Commit", "value": "commit" },
+            { "label": "DOM Content Loaded", "value": "domcontentloaded" },
+            { "label": "Load", "value": "load" },
+            { "label": "Network Idle", "value": "networkidle" }
+        ]
+    },
+    {
+        "name": "wait_for",
+        "type": "text",
+        "label": "Wait For Selector",
+        "help": "CSS selector or XPath to wait for before extracting each page's DOM. Auto-enables Render JavaScript."
+    },
+    {
+        "name": "wait_timeout",
+        "type": "uinteger",
+        "label": "Wait Timeout (ms)",
+        "help": "Exact post-ready delay in milliseconds (0–30000) before extracting each page's DOM. Auto-enables Render JavaScript.",
+        "validate": { "max": 30000 }
+    },
+    {
+        "name": "same_domain_only",
+        "type": "boolean",
+        "label": "Same Domain Only",
+        "help": "Only follow links that stay on the same domain as the seed URL.",
+        "default": true
+    },
+    {
+        "name": "include_subdomains",
+        "type": "boolean",
+        "label": "Include Subdomains",
+        "help": "When Same Domain Only is enabled, also include subdomains of the seed domain.",
+        "default": false
+    },
+    {
+        "name": "proxy_country",
+        "type": "text",
+        "label": "Proxy Country",
+        "help": "ISO 3166-1 alpha-2 country code (e.g., US, GB).",
+        "validate": { "pattern": "^[A-Z]{2}$" }
+    },
+    {
+        "name": "proxy_type",
+        "type": "select",
+        "label": "Proxy Type",
+        "default": "residential",
+        "options": [
+            { "label": "Residential", "value": "residential" },
+            { "label": "Datacenter", "value": "datacenter" }
+        ]
+    }
+]

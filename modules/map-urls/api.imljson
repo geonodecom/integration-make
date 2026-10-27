@@ -1,0 +1,15 @@
+﻿{
+    "url": "/map",
+    "method": "POST",
+    "body": {
+        "url": "{{parameters.url}}",
+        "search": "{{parameters.search}}",
+        "include_subdomains": "{{parameters.include_subdomains}}",
+        "ignore_query_parameters": "{{parameters.ignore_query_parameters}}"
+    },
+    "response": {
+        "iterate": "{{body.links}}",
+        "limit": "{{parameters.limit}}",
+        "output": "{{item}}"
+    }
+}

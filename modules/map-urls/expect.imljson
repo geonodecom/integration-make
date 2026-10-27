@@ -1,0 +1,36 @@
+[
+    {
+        "name": "url",
+        "type": "url",
+        "label": "Base URL",
+        "help": "Base URL to discover links from.",
+        "required": true
+    },
+    {
+        "name": "search",
+        "type": "text",
+        "label": "Substring Filter",
+        "help": "Case-insensitive substring filter applied to discovered URLs. Does NOT query a search engine."
+    },
+    {
+        "name": "include_subdomains",
+        "type": "boolean",
+        "label": "Include Subdomains",
+        "help": "Probe common sibling subdomains (docs, blog, help, support) for their own sitemaps.",
+        "default": true
+    },
+    {
+        "name": "ignore_query_parameters",
+        "type": "boolean",
+        "label": "Ignore Query Parameters",
+        "help": "Strip query parameters when normalizing discovered URLs.",
+        "default": true
+    },
+    {
+        "name": "limit",
+        "type": "uinteger",
+        "label": "Max Results",
+        "help": "Maximum number of discovered links to emit.",
+        "default": 1000
+    }
+]

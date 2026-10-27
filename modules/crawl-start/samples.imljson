@@ -1,0 +1,7 @@
+{
+    "job_id": "0e7c6e2a-1234-4abc-9def-5678901234ab",
+    "url": "https://example.com",
+    "status": "queued",
+    "status_url": "/v1/crawl/0e7c6e2a-1234-4abc-9def-5678901234ab",
+    "estimated_pages": 50
+}

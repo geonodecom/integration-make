@@ -1,0 +1,7 @@
+{
+    "label": "Cancel a Batch",
+    "description": "Stops scheduling new batch items and lets in-flight child extractions drain.",
+    "typeId": 4,
+    "actionType": "delete",
+    "connection": "api-key"
+}

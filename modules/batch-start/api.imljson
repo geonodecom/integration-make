@@ -1,0 +1,23 @@
+﻿{
+    "url": "/batch",
+    "method": "POST",
+    "body": {
+        "urls": "{{parameters.urls}}",
+        "ignore_invalid_urls": "{{parameters.ignore_invalid_urls}}",
+        "formats": "{{parameters.formats}}",
+        "render_js": "{{if(ifempty(parameters.wait_for, ifempty(parameters.wait_until, parameters.wait_timeout)), true, parameters.render_js)}}",
+        "proxy": {
+            "country": "{{parameters.proxy_country}}",
+            "type": "{{parameters.proxy_type}}"
+        },
+        "wait_config": {
+            "wait_until": "{{parameters.wait_until}}",
+            "wait_for": "{{parameters.wait_for}}",
+            "wait_timeout": "{{parameters.wait_timeout}}"
+        },
+        "headers": "{{toCollection(parameters.headers, 'key', 'value')}}"
+    },
+    "response": {
+        "output": "{{body}}"
+    }
+}

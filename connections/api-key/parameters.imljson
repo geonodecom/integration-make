@@ -1,0 +1,9 @@
+[
+    {
+        "name": "apiKey",
+        "type": "password",
+        "label": "API Key",
+        "help": "Your Scraper API key. Sent as the `X-Api-Key` header on every request.",
+        "required": true
+    }
+]

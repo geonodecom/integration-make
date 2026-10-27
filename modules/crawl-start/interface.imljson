@@ -1,0 +1,7 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID" },
+    { "name": "url", "type": "url", "label": "Seed URL" },
+    { "name": "status", "type": "text", "label": "Status" },
+    { "name": "status_url", "type": "text", "label": "Status URL" },
+    { "name": "estimated_pages", "type": "number", "label": "Estimated Pages" }
+]

@@ -1,0 +1,7 @@
+{
+    "label": "Start a Batch Extraction",
+    "description": "Queues a batch of URLs for asynchronous extraction. Returns a job ID immediately.",
+    "typeId": 4,
+    "actionType": "create",
+    "connection": "api-key"
+}

@@ -1,0 +1,6 @@
+{
+    "label": "Map URLs from a Site",
+    "description": "Discovers URLs under a base URL by combining sitemap parsing with HTML link extraction from the seed page. Each discovered link is emitted as a separate bundle.",
+    "typeId": 9,
+    "connection": "api-key"
+}

@@ -1,0 +1,11 @@
+{
+    "name": "scraper-api",
+    "label": "Scraper API",
+    "version": 1,
+    "description": "Extract clean HTML/markdown, crawl entire sites, batch-process URLs, discover sitemaps, and inspect usage statistics from the Scraper API.",
+    "language": "en",
+    "countries": null,
+    "private": true,
+    "theme": "#1f6feb",
+    "audience": "global"
+}

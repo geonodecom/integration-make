@@ -1,0 +1,9 @@
+[
+    {
+        "name": "job_id",
+        "type": "text",
+        "label": "Job ID",
+        "help": "The UUID returned by the async extract module.",
+        "required": true
+    }
+]

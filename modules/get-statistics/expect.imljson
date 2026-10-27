@@ -1,0 +1,14 @@
+[
+    {
+        "name": "start_date",
+        "type": "date",
+        "label": "Start Date",
+        "help": "Filter by start date. Defaults to 30 days ago when omitted."
+    },
+    {
+        "name": "end_date",
+        "type": "date",
+        "label": "End Date",
+        "help": "Filter by end date. Defaults to now when omitted."
+    }
+]

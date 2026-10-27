@@ -1,0 +1,32 @@
+[
+    { "name": "extraction_count", "type": "number", "label": "Extraction Count" },
+    { "name": "previous_period_extraction_count", "type": "number", "label": "Previous Period Extraction Count" },
+    { "name": "success_rate", "type": "number", "label": "Success Rate (0.0 - 1.0)" },
+    { "name": "average_extraction_duration", "type": "number", "label": "Average Extraction Duration (ms)" },
+    { "name": "period_tokens_used", "type": "number", "label": "Period Tokens Used" },
+    {
+        "name": "requests",
+        "type": "array",
+        "label": "Daily Request Counts",
+        "spec": {
+            "type": "collection",
+            "spec": [
+                { "name": "date", "type": "date", "label": "Date" },
+                { "name": "success_request_count", "type": "number", "label": "Successful Requests" },
+                { "name": "failed_request_count", "type": "number", "label": "Failed Requests" }
+            ]
+        }
+    },
+    {
+        "name": "tokens_used",
+        "type": "array",
+        "label": "Daily Tokens Usage",
+        "spec": {
+            "type": "collection",
+            "spec": [
+                { "name": "date", "type": "date", "label": "Date" },
+                { "name": "tokens_used", "type": "number", "label": "Tokens Used" }
+            ]
+        }
+    }
+]

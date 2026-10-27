@@ -1,0 +1,7 @@
+{
+    "label": "Get Crawl Status",
+    "description": "Polls for the current status and results of a crawl job. Returns a single status object with an optional page of results.",
+    "typeId": 4,
+    "actionType": "read",
+    "connection": "api-key"
+}

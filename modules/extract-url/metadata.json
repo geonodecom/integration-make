@@ -1,0 +1,7 @@
+{
+    "label": "Extract a URL (Sync)",
+    "description": "Extracts clean HTML and/or markdown content from a single URL and blocks until the result is ready. Use the async variant for slow targets or when JS rendering is required.",
+    "typeId": 4,
+    "actionType": "read",
+    "connection": "api-key"
+}

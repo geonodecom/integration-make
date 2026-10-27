@@ -1,0 +1,7 @@
+{
+    "job_id": "b1234567-89ab-cdef-0123-456789abcdef",
+    "status": "queued",
+    "status_url": "/v1/batch/b1234567-89ab-cdef-0123-456789abcdef",
+    "accepted_urls": 5,
+    "invalid_urls": []
+}

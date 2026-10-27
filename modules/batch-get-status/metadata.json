@@ -1,0 +1,7 @@
+{
+    "label": "Get Batch Status",
+    "description": "Polls for the current status and partial results of a batch job. Returns a single status object with an optional page of item results.",
+    "typeId": 4,
+    "actionType": "read",
+    "connection": "api-key"
+}

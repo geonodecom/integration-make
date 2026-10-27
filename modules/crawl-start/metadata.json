@@ -1,0 +1,7 @@
+{
+    "label": "Start a Crawl",
+    "description": "Queues a crawl job that walks a website starting from a seed URL up to a given depth and page limit. Returns a job ID immediately.",
+    "typeId": 4,
+    "actionType": "create",
+    "connection": "api-key"
+}

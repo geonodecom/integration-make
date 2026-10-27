@@ -1,0 +1,18 @@
+{
+    "data": {
+        "html": "<html>...</html>",
+        "markdown": "# Example\nContent here."
+    },
+    "metadata": {
+        "url": "https://example.com",
+        "render_js": true,
+        "http_status": 200,
+        "duration_ms": 842,
+        "retry_count": 0,
+        "processing_mode": "sync",
+        "formats": ["html"],
+        "proxy": { "country": "US", "type": "residential" },
+        "wait_config": { "wait_until": "networkidle", "wait_for": ".product-price", "wait_timeout": 500 }
+    },
+    "tokens_charged": 1
+}

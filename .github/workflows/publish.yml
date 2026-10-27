@@ -1,0 +1,64 @@
+name: Publish
+
+# Syncs the app to Make.com on every change to its definition.
+# Nothing is published until the MAKE_API_TOKEN secret and the MAKE_APP_NAME and MAKE_ZONE_URL variables are set.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "base.imljson"
+      - "metadata.json"
+      - "connections/**"
+      - "modules/**"
+      - "scripts/publish.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: make-com-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check the client header
+        run: python scripts/test_client_header.py
+
+      - name: Publish to Make.com
+        env:
+          MAKE_API_TOKEN: ${{ secrets.MAKE_API_TOKEN }}
+          MAKE_APP_NAME: ${{ vars.MAKE_APP_NAME }}
+          MAKE_ZONE_URL: ${{ vars.MAKE_ZONE_URL }}
+          MAKE_TEAM_ID: ${{ vars.MAKE_TEAM_ID }}
+        run: |
+          if [ -z "${MAKE_API_TOKEN}" ] || [ -z "${MAKE_APP_NAME}" ] || [ -z "${MAKE_ZONE_URL}" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "::error::Set the MAKE_API_TOKEN secret and the MAKE_APP_NAME and MAKE_ZONE_URL variables under Settings -> Secrets and variables -> Actions." >&2
+              exit 1
+            fi
+            echo "::notice::Publishing from this repository is not set up yet; skipping."
+            exit 0
+          fi
+
+          args=(
+            --token "${MAKE_API_TOKEN}"
+            --app-name "${MAKE_APP_NAME}"
+            --zone-url "${MAKE_ZONE_URL}"
+            --verbose
+          )
+          if [ -n "${MAKE_TEAM_ID}" ]; then
+            args+=(--team-id "${MAKE_TEAM_ID}")
+          fi
+
+          python scripts/publish.py "${args[@]}"

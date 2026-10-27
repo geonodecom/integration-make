@@ -1,0 +1,6 @@
+[
+    { "name": "job_id", "type": "text", "label": "Job ID" },
+    { "name": "status", "type": "text", "label": "Status" },
+    { "name": "status_url", "type": "text", "label": "Status URL" },
+    { "name": "in_flight_urls", "type": "number", "label": "In-Flight URLs Draining" }
+]
