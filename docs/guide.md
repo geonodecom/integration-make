@@ -1,5 +1,3 @@
-> This guide is adapted from the [original source guide](https://github.com/geonodecom/scraper-api-sdks/blob/b9ebe5d53bd1b74a9de3f17d33e62e4f9054eea0/make-com/README.md). Paths below are relative to this standalone repository. Publishing remains in the original monorepo; see [release migration](release-migration.md).
-
 # Scraper API: Make.com Custom App
 
 [Integrations page](https://geonode.com/integrations) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [GitHub source](https://github.com/geonodecom/integration-make) · [Repository overview](../README.md)
@@ -179,7 +177,7 @@ Notes on behaviour, mirroring the API contract:
 
 ## Publishing reference (maintainers only)
 
-These commands describe the inherited publisher. They are not part of local validation and must not be run against production during repository preparation. Existing CI sets `--app-name scraper-api-production` and `--zone-url https://us2.make.com`; never rely on the template defaults for that app.
+These commands describe the publisher. They are not part of local validation; production publishing goes through the `Publish` workflow. That workflow sets `--app-name scraper-api-production` and `--zone-url https://us2.make.com`; never rely on the template defaults for that app.
 
 ## Publishing to Make
 
