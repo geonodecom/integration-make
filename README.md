@@ -95,9 +95,9 @@ The publisher is available for maintainers as `scripts/publish.py`. Its default 
 
 ## Source and releases
 
-This repository preserves the Make subtree's history. Connection/module keys and template metadata are unchanged. Publishing remains in the original monorepo, using the existing private app. A source extraction does not create a new Make app or transfer deployment credentials.
+Connection and module keys and template metadata are kept stable. A change to the app definition merged to `main` is published to the existing private app by the `Publish` workflow.
 
-[Release migration](docs/release-migration.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Source provenance](docs/provenance.md)
+[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
 MIT licensed. See [LICENSE](LICENSE).
 

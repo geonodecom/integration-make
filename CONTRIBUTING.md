@@ -14,4 +14,4 @@ Keep existing package names, node/credential identifiers, module keys, and conne
 
 ## Releases
 
-Do not publish from this repository yet. Read [release migration](docs/release-migration.md) for the current publishing location and the remaining handover checks.
+A change to the app definition merged to `main` is published to Make by the `Publish` workflow, so review app changes before merging.
