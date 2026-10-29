@@ -4,6 +4,8 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- The integrations page link and package homepage point to this integration's own page.
+
 - Removed the internal repository preparation notes and links to the old monorepo.
 
 - README: the base URL note now matches `base.imljson`, and a step about Basic Auth is gone. The connection sends only `X-Api-Key`, which is all the API needs.

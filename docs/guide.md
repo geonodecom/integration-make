@@ -1,6 +1,6 @@
 # Scraper API: Make.com Custom App
 
-[Integrations page](https://geonode.com/integrations) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [GitHub source](https://github.com/geonodecom/integration-make) · [Repository overview](../README.md)
+[Integrations page](https://geonode.com/integrations/integration-make) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [GitHub source](https://github.com/geonodecom/integration-make) · [Repository overview](../README.md)
 
 Make.com (formerly Integromat) custom app for the Scraper API, built using the
 Make Apps SDK (IMLJSON) format. Covers `/extract`, `/crawl`, `/batch`, `/map`,

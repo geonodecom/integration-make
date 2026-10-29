@@ -6,7 +6,7 @@ Give your Make.com agents and scenarios web content for research and automation.
 
 **[Try Geonode for free](https://app.geonode.com/sign-up)**
 
-[Integrations page](https://geonode.com/integrations) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [View source on GitHub](https://github.com/geonodecom/integration-make) · [Complete guide](docs/guide.md)
+[Integrations page](https://geonode.com/integrations/integration-make) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [View source on GitHub](https://github.com/geonodecom/integration-make) · [Complete guide](docs/guide.md)
 
 **Private app, access by request.** The existing Geonode app is deployed in Make's US2 zone as `scraper-api-production`. There is no public Make marketplace listing. This repository contains its Make Apps SDK source, not an npm or Python package.
 
