@@ -74,7 +74,5 @@
         "type": "uinteger",
         "label": "Results Page Size",
         "default": 50
-    },
-    { "name": "poll_interval_seconds", "type": "uinteger", "label": "Poll Interval (s)", "default": 10 },
-    { "name": "max_attempts", "type": "uinteger", "label": "Max Poll Attempts", "default": 60 }
+    }
 ]

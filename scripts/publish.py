@@ -6,10 +6,17 @@ Python standard library; no extra installs.
 
 Make appends a random suffix to the app name on creation (e.g. the configured
 `scraper-api` becomes `scraper-api-5i531e`), so a GET on the configured name
-404/403s on every later run. To avoid creating a new app each time, pass the
-real (suffixed) name via --app-name. If you don't, the script discovers it by
-listing the token's apps and matching on the configured name prefix; only when
-no existing app is found does it create one.
+404/403s on every later run. Pass the real (suffixed) name via --app-name. If
+you don't, the script looks for it by listing the token's apps and matching on
+the configured name prefix.
+
+The script never creates an app by default. If the app cannot be found, or the
+lookup fails, it stops with an error. Set MAKE_ALLOW_CREATE=1 to create a new
+app on purpose.
+
+Environment variables:
+    MAKE_DRY_RUN=1       Same as --dry-run.
+    MAKE_ALLOW_CREATE=1  Create the app when it does not exist yet.
 
 Script parameters (command-line arguments):
     --token TOKEN        Required. Personal API token (Make -> Profile ->
@@ -27,8 +34,8 @@ Script parameters (command-line arguments):
                          fronted by Cloudflare and blocks the default
                          Python-urllib UA with HTTP 403 (error 1010), so a
                          browser-like UA is sent by default.
-    --dry-run            Optional. Prints the planned requests without
-                         sending anything.
+    --dry-run            Optional. Sends only read (GET) requests and prints
+                         the write requests it would send.
     --verbose            Optional. Prints request and response bodies.
 """
 
@@ -36,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 import sys
 import urllib.error
@@ -45,6 +53,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_ZONE = "https://eu1.make.com"
 DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; scraper-api-sdks/publish.py)"
 PREVIEW_LIMIT = 1500
+DRY_RUN_ENV = "MAKE_DRY_RUN"
+ALLOW_CREATE_ENV = "MAKE_ALLOW_CREATE"
 
 CONNECTION_SECTIONS = ("api", "common", "parameters", "scope", "scopes", "installSpec", "install", "uninstall")
 MODULE_SECTIONS = ("api", "parameters", "expect", "interface", "samples", "scope", "epoch", "attach", "detach", "update")
@@ -54,7 +64,15 @@ class PublishError(RuntimeError):
     pass
 
 
+class DryRunStop(RuntimeError):
+    """A dry run reached a step that needs an app that does not exist yet."""
+
+
 # ---------- pure helpers ----------
+
+def env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
+
 
 def read_imljson(path: pathlib.Path) -> str:
     """Read a local .imljson/.json file, stripping any UTF-8 BOM (utf-8-sig) so the
@@ -112,6 +130,25 @@ def parse_app_identity(response_text: str, fallback_name: str, fallback_version:
     return name, str(version)
 
 
+def extract_record(response_text: str, *wrapper_keys: str) -> dict:
+    """Pull one record from a JSON response, checking wrapper keys then top-level."""
+    try:
+        data = json.loads(response_text)
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    for key in wrapper_keys:
+        if isinstance(data.get(key), dict):
+            return data[key]
+    return data
+
+
+def changed_fields(current: dict, wanted: dict) -> dict:
+    """The wanted fields whose value differs from the current record."""
+    return {key: value for key, value in wanted.items() if current.get(key) != value}
+
+
 def extract_list(response_text: str, *wrapper_keys: str) -> list:
     """Pull a list of records from a JSON response, checking wrapper keys then top-level."""
     try:
@@ -146,12 +183,13 @@ class MakeClient:
         url = self.base + path
         payload = self._encode_body(body)
 
+        skip = self.dry_run and method != "GET"
         if self.verbose or self.dry_run:
-            print(f"  -> {method} {url}")
+            print(f"  -> {method} {url}" + ("  [dry run: not sent]" if skip else ""))
             if payload and self.verbose:
                 print(f"     body: {preview(payload.decode('utf-8', errors='replace'))}")
 
-        if self.dry_run and method != "GET":
+        if skip:
             return 200, ""
 
         req = urllib.request.Request(url, data=payload, method=method)
@@ -217,12 +255,13 @@ def upload_dir_sections(client: MakeClient, directory: pathlib.Path, sections: t
             print(f"  skip {section} (empty)")
             continue
         upload_section(client, primary(section), content, fallback=fallback(section) if fallback else None)
-        print(f"  put {section}")
+        print(f"  {'would put' if client.dry_run else 'put'} {section}")
 
 
 # ---------- ensure resources exist ----------
 
-def ensure_app(client: MakeClient, metadata: dict, app_name: str, version: str, team_id: str | None) -> tuple[str, str]:
+def ensure_app(client: MakeClient, metadata: dict, app_name: str, version: str, team_id: str | None,
+               *, allow_create: bool = False) -> tuple[str, str]:
     print(f"[app] {app_name} v{version}")
     qs = f"?teamId={team_id}" if team_id else ""
 
@@ -230,7 +269,7 @@ def ensure_app(client: MakeClient, metadata: dict, app_name: str, version: str, 
     #    to update in place without a listing round-trip.
     status, body = client.request("GET", f"/{app_name}/{version}{qs}")
     if 200 <= status < 300:
-        _update_app(client, metadata, app_name, version, qs)
+        _update_app(client, metadata, app_name, version, qs, body)
         return app_name, version
     if status not in (403, 404):
         client.expect_ok("GET", f"/{app_name}/{version}", status, body)
@@ -240,26 +279,41 @@ def ensure_app(client: MakeClient, metadata: dict, app_name: str, version: str, 
     found = _discover_existing(client, app_name, version, team_id)
     if found:
         rname, rversion = found
-        vstatus, _ = client.request("GET", f"/{rname}/{rversion}{qs}")
+        vstatus, vbody = client.request("GET", f"/{rname}/{rversion}{qs}")
         if 200 <= vstatus < 300:
             print(f"  found existing app '{rname}' v{rversion} — updating it")
-            _update_app(client, metadata, rname, rversion, qs)
+            _update_app(client, metadata, rname, rversion, qs, vbody)
             return rname, rversion
-        print(f"  matched '{rname}' in app list but GET returned HTTP {vstatus} — creating a new app")
+        raise PublishError(
+            f"Found app '{rname}' v{rversion} in the app list, but GET returned HTTP {vstatus}. "
+            "Stopping without creating an app. Check --team-id and the token scopes."
+        )
 
-    # 3. Nothing found — create.
+    # 3. Nothing found. Creating a new app must be asked for explicitly.
+    if not allow_create:
+        raise PublishError(
+            f"App '{app_name}' v{version} was not found (GET returned HTTP {status} and no app in the list matches). "
+            "Stopping without creating an app. Pass the real app name with --app-name and check --team-id "
+            f"and the token scopes. To create a new app on purpose, set {ALLOW_CREATE_ENV}=1."
+        )
     return _create_app(client, metadata, app_name, version, team_id, qs)
 
 
-def _update_app(client: MakeClient, metadata: dict, app_name: str, version: str, qs: str) -> None:
-    patch = {
+def _update_app(client: MakeClient, metadata: dict, app_name: str, version: str, qs: str, current_body: str) -> None:
+    wanted = {
         "label": metadata.get("label", app_name),
         "description": metadata.get("description", ""),
         "theme": metadata.get("theme", "#000000"),
     }
-    status, text = client.request("PATCH", f"/{app_name}/{version}{qs}", body=patch)
+    changes = changed_fields(extract_record(current_body, "app"), wanted)
+    if not changes:
+        print(f"  metadata unchanged ({app_name} v{version})")
+        return
+    for key, value in changes.items():
+        print(f"  {key} -> {value!r}")
+    status, text = client.request("PATCH", f"/{app_name}/{version}{qs}", body=wanted)
     client.expect_ok("PATCH", f"/{app_name}/{version}", status, text)
-    print(f"  metadata updated ({app_name} v{version})")
+    print(f"  metadata {'would be updated' if client.dry_run else 'updated'} ({app_name} v{version})")
 
 
 def _list_apps(client: MakeClient, team_id: str | None) -> list:
@@ -268,14 +322,15 @@ def _list_apps(client: MakeClient, team_id: str | None) -> list:
         qs += f"&teamId={team_id}"
     status, body = client.request("GET", qs)
     if not (200 <= status < 300):
-        print(f"  warning: could not list apps for discovery (HTTP {status})")
-        return []
+        raise PublishError(f"Could not list apps to find the existing app (HTTP {status}). Stopping; nothing was created.")
     try:
         data = json.loads(body)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise PublishError("The app list response is not JSON. Stopping; nothing was created.") from exc
     apps = data.get("apps") if isinstance(data, dict) else data
-    return apps if isinstance(apps, list) else []
+    if not isinstance(apps, list):
+        raise PublishError("The app list response has no list of apps. Stopping; nothing was created.")
+    return apps
 
 
 def _discover_existing(client: MakeClient, base_name: str, version: str, team_id: str | None) -> tuple[str, str] | None:
@@ -308,6 +363,10 @@ def _create_app(client: MakeClient, metadata: dict, app_name: str, version: str,
     }
     if team_id:
         payload["teamId"] = int(team_id) if team_id.isdigit() else team_id
+
+    if client.dry_run:
+        print(f"  would create app '{app_name}' v{version}: {json.dumps(payload)}")
+        raise DryRunStop("The app does not exist yet, so the rest of the plan cannot be checked.")
 
     status, text = client.request("POST", qs, body=payload)
     if status == 409:
@@ -402,7 +461,7 @@ def ensure_connection(client: MakeClient, app_name: str, conn_dir: pathlib.Path)
             else:
                 client.expect_ok("POST", f"/{app_name}/connections", status, text)
                 resolved = extract_name(text, "appConnection", "connection", "data", fallback=api_name)
-                print(f"  created as {resolved}")
+                print(f"  {'would be created' if client.dry_run else 'created'} as {resolved}")
     else:
         client.expect_ok("GET", f"/{app_name}/connections/{api_name}", status, body)
         resolved = extract_name(body, "appConnection", "connection", "data", fallback=api_name)
@@ -439,9 +498,17 @@ def ensure_module(client: MakeClient, app_name: str, version: str, module_dir: p
             print("  already exists")
         else:
             client.expect_ok("POST", f"/{app_name}/{version}/modules", status, text)
-            print("  created")
+            print("  would be created" if client.dry_run else "  created")
     else:
         client.expect_ok("GET", f"/{app_name}/{version}/modules/{api_name}", status, body)
+        # Label and description are set only on create, so keep existing modules in sync.
+        wanted = {"label": meta.get("label", local_name), "description": meta.get("description", "")}
+        changes = changed_fields(extract_record(body, "appModule", "module"), wanted)
+        if changes:
+            for key, value in changes.items():
+                print(f"  {key} -> {value!r}")
+            pstatus, ptext = client.request("PATCH", f"/{app_name}/{version}/modules/{api_name}", body=wanted)
+            client.expect_ok("PATCH", f"/{app_name}/{version}/modules/{api_name}", pstatus, ptext)
 
     upload_dir_sections(
         client, module_dir, MODULE_SECTIONS,
@@ -482,7 +549,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--dry-run", action="store_true",
-        help="Print the planned requests without sending anything.",
+        help=f"Send only read (GET) requests and print the write requests instead of sending them. "
+             f"{DRY_RUN_ENV}=1 does the same.",
     )
     parser.add_argument(
         "--verbose", action="store_true",
@@ -515,14 +583,19 @@ def main(argv: list[str] | None = None) -> int:
     zone = args.zone_url
     user_agent = args.user_agent
     team_id = args.team_id
-    dry_run = args.dry_run
+    dry_run = args.dry_run or env_flag(DRY_RUN_ENV)
+    allow_create = env_flag(ALLOW_CREATE_ENV)
     verbose = args.verbose
 
-    print(f"Target: {zone}  app={app_name}  version={version}  team={team_id or '-'}  dry_run={dry_run}")
+    print(f"Target: {zone}  app={app_name}  version={version}  team={team_id or '-'}  "
+          f"dry_run={dry_run}  allow_create={allow_create}")
+    if dry_run:
+        print("Dry run: only GET requests are sent. Write requests are printed, not sent.")
     client = MakeClient(zone, token, user_agent=user_agent, dry_run=dry_run, verbose=verbose)
 
     try:
-        resolved_name, resolved_version = ensure_app(client, metadata, app_name, version, team_id)
+        resolved_name, resolved_version = ensure_app(client, metadata, app_name, version, team_id,
+                                                     allow_create=allow_create)
         put_base(client, resolved_name, resolved_version, REPO_ROOT / "base.imljson")
 
         connection_names: dict[str, str] = {}
@@ -537,11 +610,14 @@ def main(argv: list[str] | None = None) -> int:
                 conn_ref = load_json(module_dir / "metadata.json").get("connection")
                 resolved_conn = connection_names.get(conn_ref) if conn_ref else None
                 ensure_module(client, resolved_name, resolved_version, module_dir, resolved_conn)
+    except DryRunStop as exc:
+        print(f"\nDry run stopped: {exc}")
+        return 0
     except PublishError as exc:
         print(f"\nPublish failed: {exc}", file=sys.stderr)
         return 1
 
-    print("\nDone.")
+    print("\nDry run done. Nothing was written." if dry_run else "\nDone.")
     return 0
 
 

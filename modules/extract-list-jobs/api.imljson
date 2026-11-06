@@ -6,8 +6,8 @@
         "url": "{{parameters.url}}",
         "status": "{{parameters.status}}",
         "output": "{{parameters.output}}",
-        "start_date": "{{parameters.start_date}}",
-        "end_date": "{{parameters.end_date}}",
+        "start_date": "{{formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}",
+        "end_date": "{{formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}",
         "page": "{{ifempty(temp.next_page, 1)}}",
         "page_size": 100
     },

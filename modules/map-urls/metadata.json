@@ -1,6 +1,6 @@
 {
-    "label": "Map URLs from a Site",
-    "description": "Discovers URLs under a base URL by combining sitemap parsing with HTML link extraction from the seed page. Each discovered link is emitted as a separate bundle.",
+    "label": "Search website URLs",
+    "description": "Returns a list of URLs found on a website through its sitemaps and the links on the start page. You can filter the URLs by text. Each URL is a separate bundle.",
     "typeId": 9,
     "connection": "api-key"
 }

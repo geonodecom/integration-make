@@ -1,6 +1,6 @@
 {
-    "label": "Get Crawl Status",
-    "description": "Polls for the current status and results of a crawl job. Returns a single status object with an optional page of results.",
+    "label": "Get a crawl",
+    "description": "Returns the status, progress counts and one page of results for a crawl job.",
     "typeId": 4,
     "actionType": "read",
     "connection": "api-key"

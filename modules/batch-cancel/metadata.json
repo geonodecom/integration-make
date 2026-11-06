@@ -1,6 +1,6 @@
 {
-    "label": "Cancel a Batch",
-    "description": "Stops scheduling new batch items and lets in-flight child extractions drain.",
+    "label": "Cancel a batch",
+    "description": "Cancels a batch job. No new URLs are started, and extractions already running are allowed to finish.",
     "typeId": 4,
     "actionType": "delete",
     "connection": "api-key"

@@ -8,13 +8,13 @@ and `/statistics`. Webhook endpoints are intentionally excluded.
 
 ## Status
 
-**Private app, access by request.** The existing Geonode app is deployed as `scraper-api-production` in the US2 zone. There is no public marketplace listing. The source template retains its `scraper-api` metadata identifier; the existing CI supplies the deployed app name and zone. See [release migration](release-migration.md) before running publisher commands.
+**Private app for now, access by request.** The Geonode app runs in Make's US2 zone and is being prepared for Make's public app review. There is no public Make listing yet. The source template retains its `scraper-api` metadata identifier; the existing CI supplies the deployed app name and zone. See [Publishing to Make](#publishing-to-make) before running publisher commands.
 
 ## Set up the Make.com connector
 
 1. [Request private app access](https://geonode.com/contact). Tell Geonode which Make organization and zone you use; accept the supplied invitation before searching for the app in the scenario editor. There is no public install link yet.
 2. Create an API key under **API Keys** in the [Geonode dashboard](https://app.geonode.com/).
-3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL (Sync)**.
+3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL**.
 4. Create an **API Key** connection and paste your Geonode key. The connection sends `X-Api-Key` and checks authenticated usage statistics.
 5. Enter `https://example.com` in **URL** and select **Markdown** in **Output Formats**. The module defaults to HTML, so select Markdown explicitly.
 6. Choose **Run once**. Inspect the output bundle: **Extracted Data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
@@ -24,27 +24,28 @@ A successful connection test checks authentication; the extraction output confir
 
 ## Example: website content → Google Sheets
 
-Use a URL from your scenario → **Extract a URL (Sync)** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
+Use a URL from your scenario → **Extract a URL** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
 
 The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled or live-tested scenario blueprints.
 
-## All 15 Make modules
+## All 16 Make modules
 
 | Capability | Modules | What you get |
 | --- | --- | --- |
-| Extract a page now | **Extract a URL (Sync)** | Markdown and/or HTML in the same operation. |
-| Extract in the background | **Extract a URL (Async)**; **Get an Extraction Job**; **List Extraction Jobs** | A job ID, subsequent status/results, or one bundle per listed job. |
-| Wait for a short extraction | **Extract a URL (Wait for Completion)** | Starts extraction and polls within the module. |
-| Crawl a website | **Start a Crawl**; **Get Crawl Status**; **Cancel a Crawl**; **Start a Crawl (Wait for Completion)** | Collect linked pages within configured depth and page limits. |
-| Process a URL list | **Start a Batch Extraction**; **Get Batch Status**; **Cancel a Batch**; **Start a Batch (Wait for Completion)** | Submit a list, follow its progress and retrieve results. |
-| Discover links | **Map URLs from a Site** | One bundle per discovered URL, with its discovery source. |
-| Check account usage | **Get Usage Statistics** | Usage information for the connected account. |
+| Extract a page now | **Extract a URL** | Markdown and/or HTML in the same operation. |
+| Extract in the background | **Start an extraction job**; **Get an extraction job**; **Search extraction jobs** | A job ID, subsequent status/results, or one bundle per listed job. |
+| Wait for a short extraction | **Extract a URL (wait for completion)** | Starts extraction and checks it for up to about 20 seconds. |
+| Crawl a website | **Start a crawl**; **Get a crawl**; **Cancel a crawl**; **Start a crawl (wait for completion)** | Collect linked pages within configured depth and page limits. |
+| Process a URL list | **Start a batch extraction**; **Get a batch**; **Cancel a batch**; **Start a batch (wait for completion)** | Submit a list, follow its progress and retrieve results. |
+| Discover links | **Search website URLs** | One bundle per discovered URL, with its discovery source. |
+| Check account usage | **Get usage statistics** | Usage information for the connected account. |
+| Call any API endpoint | **Make an API call** | Status code, headers and body of a Geonode API request sent with your connection. |
 
 ### Control how pages are retrieved
 
 Extraction, batch and crawl inputs expose **Render JavaScript**, browser wait settings, and proxy controls where defined by the module. Wait for a page lifecycle event or a CSS selector/XPath before capture. Setting a wait option enables JavaScript rendering. Country and proxy-type settings let you configure the request; rendering and account usage remain subject to your Geonode plan.
 
-For longer jobs, save the returned job ID and use separate start/status steps with bounded polling. The wait helpers hold the operation open and suit shorter tasks; configure their interval and maximum attempts. Do not resubmit a job just because a polling step times out.
+For longer jobs, save the returned job ID and use separate start/status steps with bounded polling. The wait modules check the job every 3 seconds for up to about 20 seconds, because Make's default time limit for a module is 40 seconds. If the job is still running, they return its current status and job ID instead of failing. Do not resubmit a job just because it is still running.
 
 ### Know which output to map
 
@@ -99,13 +100,14 @@ The module names and fields above were reviewed against this repository's source
     batch-wait/                   helper: start + poll until terminal state
     map-urls/                     POST /map (search — one bundle per link)
     get-statistics/               GET /statistics
+    make-api-call/                universal module: any path on https://scraper.geonode.io
 ```
 
 Each module directory contains:
 
 | File | Purpose |
 | --- | --- |
-| `metadata.json` | label, description, `typeId` (4 = action, 9 = search), action type |
+| `metadata.json` | label, description, `typeId` (4 = action, 9 = search, 12 = universal), action type |
 | `api.imljson` | request/response mapping (URL, method, body, qs, output, polling) |
 | `expect.imljson` | mappable input fields shown in the scenario editor |
 | `interface.imljson` | output schema rendered as mappable fields downstream |
@@ -136,19 +138,17 @@ Two patterns are exposed for every async-style endpoint:
   poll loop themselves with native Make modules (Sleep, Repeater, router).
   Recommended for production scenarios because it returns control to Make
   between polls.
-- **`*-wait` helper** — single module that starts the job and then polls
-  internally using Make's `response.valid.condition` + `response.wait`
-  retry mechanism. Returns the final result in one operation. Convenient for
-  ad-hoc work but holds a scenario operation open for the entire polling
-  window, so use only for short jobs.
+- **`*-wait` helper** — single module that starts the job and then checks its
+  status with Make's `repeat` directive while the status is `queued` or
+  `processing`. Returns the final result in one operation. Use it only for
+  short jobs.
 
-For each `*-wait` module, the user controls polling cadence via:
-
-- `poll_interval_seconds` (default 5–10s)
-- `max_attempts` (default 60)
-
-Total wait window ≈ `poll_interval_seconds × max_attempts`. When the cap is
-exceeded the request fails with the last-observed status in the error message.
+Make's default time limit for a module is 40 seconds, and the `repeat` delay
+and limit must be fixed values. So each `*-wait` module checks the status
+every 3 seconds with a `repeat` limit of 7 (about 20 seconds), and then reads
+the job once more. If the job is still running at that point, the module returns its
+current status and job ID instead of failing. Use the matching `Get` module
+to check it later.
 
 ## Browser wait configuration
 
@@ -203,8 +203,10 @@ All settings are passed as command-line arguments. Run
 | `--zone-url` | `https://eu1.make.com` | Make zone base URL |
 | `--team-id` | _(none)_ | Required if your token is team-scoped |
 | `--user-agent` | browser-like UA | Override UA (Cloudflare blocks Python-urllib) |
-| `--dry-run` | off | Preview the planned requests without writing |
+| `--dry-run` | off | Send only GET requests and print the planned writes |
 | `--verbose` | off | Log every request + payload |
+| `MAKE_DRY_RUN=1` (env) | off | Same as `--dry-run` |
+| `MAKE_ALLOW_CREATE=1` (env) | off | Create the app if it does not exist. Without it the script stops instead |
 
 **PowerShell (Windows):**
 
@@ -250,15 +252,18 @@ python scripts/publish.py --token "your-token"
 What it does:
 
 1. Reads `metadata.json` for app name/version/label/theme/etc.
-2. `GET /apps/{name}/{version}` — if 404, `POST /apps` to create; otherwise
-   `PATCH` label/description/theme.
+2. `GET /apps/{name}/{version}`, then the app list if that fails. If the app
+   is found, `PATCH` label/description/theme when they differ. If it is not
+   found, or the lookup fails, stop with an error. `POST /apps` to create it
+   only when `MAKE_ALLOW_CREATE=1` is set.
 3. `PUT /apps/{name}/{version}/base` with `base.imljson`.
 4. For every directory under `connections/`, creates the connection (if new)
    then PUTs whichever of `api`, `common`, `parameters`, `scope`, `scopes`,
    `installSpec`, `install`, `uninstall` `.imljson` files exist.
 5. For every directory under `modules/`, creates the module (if new) with
    `name`, `label`, `description`, `typeId`, `actionType`, `connection`
-   from its `metadata.json`, then PUTs whichever of `api`, `parameters`,
+   from its `metadata.json` (for an existing module, PATCHes `label` and
+   `description` when they differ), then PUTs whichever of `api`, `parameters`,
    `expect`, `interface`, `samples`, `scope`, `epoch`, `attach`, `detach`,
    `update` `.imljson` files exist.
 
@@ -276,9 +281,10 @@ Caveats:
   the box; override via `--user-agent` if needed.
 - **`HTTP 403 / SC403 "Access denied or App not found"`** from Make
   itself (different from Cloudflare 1010 above) means one of:
-  1. The app doesn't exist yet — the script treats 403 the same as 404
-     on the initial GET and tries to create. If the create then returns
-     409, it surfaces a clear error.
+  1. The app doesn't exist yet, or Make gave it a suffixed name. The
+     script treats 403 the same as 404 on the initial GET, looks for the
+     app in the app list, and stops with an error if it is not there. Pass
+     the real name with `--app-name`.
   2. The token belongs to a different team than the app — find your
      team ID in any Make URL (`/team/{id}/...`) and pass `--team-id`.
   3. The token is missing scopes. Required: `apps:read`, `apps:write`,
@@ -321,14 +327,15 @@ inspecting what's currently deployed.
 Before publishing, verify in a Make scenario:
 
 - [ ] Create connection — succeeds, fails clearly with bad key (401).
-- [ ] `Extract a URL (Sync)` — happy path on `https://example.com`.
-- [ ] `Extract a URL (Async)` → `Get an Extraction Job` chain.
-- [ ] `Extract a URL (Wait for Completion)` — finishes within budget.
-- [ ] `List Extraction Jobs` — pagination iterates all pages.
-- [ ] `Start a Crawl` → `Get Crawl Status` → `Cancel a Crawl` lifecycle.
-- [ ] `Start a Batch` → `Get Batch Status` lifecycle.
-- [ ] `Map URLs from a Site` — emits a bundle per discovered link.
-- [ ] `Get Usage Statistics` — date range filter works.
+- [ ] `Extract a URL` — happy path on `https://example.com`.
+- [ ] `Start an extraction job` → `Get an extraction job` chain.
+- [ ] `Extract a URL (wait for completion)` — finishes within about 20 seconds, or returns the running status.
+- [ ] `Search extraction jobs` — pagination iterates all pages; date filters work.
+- [ ] `Start a crawl` → `Get a crawl` → `Cancel a crawl` lifecycle.
+- [ ] `Start a batch extraction` → `Get a batch` lifecycle.
+- [ ] `Search website URLs` — emits a bundle per discovered link.
+- [ ] `Get usage statistics` — date range filter works.
+- [ ] `Make an API call` — `GET /v1/statistics` returns status 200 with a body.
 - [ ] A 401 / 402 / 422 / 429 from the API maps to the right Make error type
       (see `base.imljson::response.error.type`).
 

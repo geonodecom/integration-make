@@ -1,6 +1,6 @@
 {
-    "label": "Cancel a Crawl",
-    "description": "Stops scheduling new crawl pages and lets in-flight page work drain. Returns immediately with the cancellation acknowledgement.",
+    "label": "Cancel a crawl",
+    "description": "Cancels a crawl job. No new pages are started, and pages already in progress are allowed to finish.",
     "typeId": 4,
     "actionType": "delete",
     "connection": "api-key"
