@@ -14,6 +14,7 @@ import pathlib
 import sys
 import unittest
 import urllib.error
+import zlib
 from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -156,6 +157,17 @@ class MainTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [])
 
 
+def encode_png(width: int, height: int, rgba: bytes) -> bytes:
+    """An RGBA PNG with no row filters, so its bytes differ from the repo logo's."""
+    raw = b"".join(b"\x00" + rgba[y * width * 4:(y + 1) * width * 4] for y in range(height))
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return len(body).to_bytes(4, "big") + kind + body + zlib.crc32(kind + body).to_bytes(4, "big")
+
+    ihdr = width.to_bytes(4, "big") + height.to_bytes(4, "big") + bytes((8, 6, 0, 0, 0))
+    return publish.PNG_SIGNATURE + chunk(b"IHDR", ihdr) + chunk(b"IDAT", zlib.compress(raw, 1)) + chunk(b"IEND", b"")
+
+
 def png_header(width: int, height: int) -> bytes:
     return publish.PNG_SIGNATURE + (13).to_bytes(4, "big") + b"IHDR" + width.to_bytes(4, "big") + height.to_bytes(4, "big")
 
@@ -172,10 +184,21 @@ class LogoAndReviewTest(unittest.TestCase):
         self.assertIn("bytes>", output)  # the PNG is not printed as text
 
     def test_same_logo_on_make_is_not_uploaded_again(self) -> None:
-        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, publish.LOGO_PATH.read_bytes())})
+        # Make re-encodes uploads: same pixels, different bytes.
+        width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
+        reencoded = encode_png(width, height, pixels)
+        self.assertNotEqual(reencoded, publish.LOGO_PATH.read_bytes())
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, reencoded)})
         _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
         self.assertEqual(fake.writes(), [])
         self.assertIn("logo unchanged (512x512", output)
+
+    def test_one_changed_pixel_is_a_different_picture(self) -> None:
+        width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
+        opaque = pixels.index(b"\x00\x00\x00\xff")
+        changed = pixels[:opaque] + b"\xff\x00\x00\xff" + pixels[opaque + 4:]
+        self.assertTrue(publish.same_picture(encode_png(width, height, pixels), publish.LOGO_PATH.read_bytes()))
+        self.assertFalse(publish.same_picture(encode_png(width, height, changed), publish.LOGO_PATH.read_bytes()))
 
     def test_different_logo_on_make_is_described_then_replaced(self) -> None:
         fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, png_header(256, 256))})
