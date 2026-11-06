@@ -527,7 +527,9 @@ def describe_png(data: bytes, ours: bytes | None = None) -> str:
         width, height = png_size(data)
     except PublishError:
         return f"{len(data)} bytes, not a PNG"
-    text = f"{width}x{height} PNG, {len(data)} bytes, bit depth {data[24]}, colour type {data[25]}"
+    text = f"{width}x{height} PNG, {len(data)} bytes"
+    if len(data) > 25:
+        text += f", bit depth {data[24]}, colour type {data[25]}"
     if ours is None:
         return text
     try:
