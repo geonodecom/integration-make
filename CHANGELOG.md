@@ -4,6 +4,8 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- Error messages show the API's validation message. A 422 for a bad input comes back as `{"detail": [{"msg": ...}]}` without `code` or `message`, so Make used to show "[422] ERROR: Unknown error". Now it shows the first `detail` message, or `detail` itself when it is a plain string.
+
 - The publisher uploads the app logo (`assets/make-logo.png`, the Geonode mark) and prints the app's review state on every run, dry runs included.
 
 - New **Make an API call** module (`make-api-call`). It sends any request to a path on `https://scraper.geonode.io` with the connection's API key and returns the status code, headers and body.
