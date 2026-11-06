@@ -119,9 +119,11 @@ Each module directory contains:
    `https://scraper.geonode.io/v1`. If you want per-deployment overrides, add a
    `baseUrl` field to `connections/api-key/parameters.imljson` and switch
    `base.imljson` to read `{{connection.baseUrl}}`.
-2. **App version + icon** — `metadata.json` declares `version: 1`. Bump on each
-   publish. Add an `app.png` (512x512) and reference it via the Developer Hub
-   when uploading.
+2. **App version + logo** — `metadata.json` declares `version: 1`. Bump on each
+   publish. The publisher uploads `assets/make-logo.png` as the app logo: Make
+   wants a square PNG of 512 to 2048 px, at most 500 kB. Make paints transparent
+   areas in the theme colour and black areas white, so the logo is the Geonode
+   mark in black on a transparent background.
 
 ## Authentication
 

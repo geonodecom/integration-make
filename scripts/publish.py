@@ -53,6 +53,8 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_ZONE = "https://eu1.make.com"
 DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; scraper-api-sdks/publish.py)"
 PREVIEW_LIMIT = 1500
+LOGO_PATH = REPO_ROOT / "assets" / "make-logo.png"
+PNG_SIGNATURE = bytes.fromhex("89504e470d0a1a0a")
 DRY_RUN_ENV = "MAKE_DRY_RUN"
 ALLOW_CREATE_ENV = "MAKE_ALLOW_CREATE"
 
@@ -187,7 +189,8 @@ class MakeClient:
         if self.verbose or self.dry_run:
             print(f"  -> {method} {url}" + ("  [dry run: not sent]" if skip else ""))
             if payload and self.verbose:
-                print(f"     body: {preview(payload.decode('utf-8', errors='replace'))}")
+                shown = f"<{len(payload)} bytes>" if isinstance(body, bytes) else preview(payload.decode("utf-8", errors="replace"))
+                print(f"     body: {shown}")
 
         if skip:
             return 200, ""
@@ -219,6 +222,8 @@ class MakeClient:
             return json.dumps(body).encode("utf-8")
         if isinstance(body, str):
             return body.encode("utf-8")
+        if isinstance(body, bytes):
+            return body
         raise PublishError(f"Unsupported body type: {type(body).__name__}")
 
     def expect_ok(self, method: str, path: str, status: int, text: str, *, allow: tuple[int, ...] = ()) -> None:
@@ -391,6 +396,35 @@ def _create_app(client: MakeClient, metadata: dict, app_name: str, version: str,
             "Re-run with --verbose to see full payloads."
         )
     return resolved_name, resolved_version
+
+
+def png_size(data: bytes) -> tuple[int, int]:
+    """Width and height from a PNG header; PublishError if the data is not a PNG."""
+    if data[:8] != PNG_SIGNATURE or data[12:16] != b"IHDR":
+        raise PublishError("The logo is not a PNG file.")
+    return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+
+
+def put_logo(client: MakeClient, app_name: str, version: str, logo_path: pathlib.Path = LOGO_PATH) -> None:
+    # Make wants a square PNG of 512-2048 px, at most 500 kB.
+    if not logo_path.exists():
+        print("[logo] no logo file — skipping")
+        return
+    print(f"[logo] {logo_path.relative_to(REPO_ROOT).as_posix()}")
+    data = logo_path.read_bytes()
+    width, height = png_size(data)
+    if width != height or not 512 <= width <= 2048 or len(data) > 500_000:
+        raise PublishError(f"Make needs a square PNG of 512-2048 px and at most 500 kB; the logo is {width}x{height}, {len(data)} bytes.")
+    status, text = client.request("PUT", f"/{app_name}/{version}/icon", body=data, content_type="image/png")
+    client.expect_ok("PUT", f"/{app_name}/{version}/icon", status, text)
+    print(f"  {'would upload' if client.dry_run else 'uploaded'} {width}x{height}, {len(data)} bytes")
+
+
+def show_review(client: MakeClient, app_name: str, version: str) -> None:
+    """Prints the app's review state. Read-only, and never fails the run."""
+    print("[review]")
+    status, text = client.request("GET", f"/{app_name}/{version}/review")
+    print(f"  {preview(text)}" if 200 <= status < 300 else f"  no review data (HTTP {status})")
 
 
 def put_base(client: MakeClient, app_name: str, version: str, base_path: pathlib.Path) -> None:
@@ -596,6 +630,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         resolved_name, resolved_version = ensure_app(client, metadata, app_name, version, team_id,
                                                      allow_create=allow_create)
+        show_review(client, resolved_name, resolved_version)
+        put_logo(client, resolved_name, resolved_version)
         put_base(client, resolved_name, resolved_version, REPO_ROOT / "base.imljson")
 
         connection_names: dict[str, str] = {}

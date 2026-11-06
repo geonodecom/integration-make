@@ -141,8 +141,10 @@ class MainTest(unittest.TestCase):
         self.assertIn("metadata would be updated", output)
         self.assertIn("would be created", output)
         self.assertIn("would put api", output)
-        for done in ("metadata updated", "  created", "  put "):
+        for done in ("metadata updated", "  created", "  put ", "uploaded"):
             self.assertNotIn(done, output)
+        self.assertIn("[review]", output)
+        self.assertIn("would upload 512x512", output)
 
     def test_dry_run_never_creates_even_with_opt_in(self) -> None:
         fake = FakeMake(dict(APP_MISSING))
@@ -150,6 +152,40 @@ class MainTest(unittest.TestCase):
             code, output = run(fake, publish.main, self.ARGS)
         self.assertEqual(code, 0)
         self.assertIn("would create app", output)
+        self.assertEqual(fake.writes(), [])
+
+
+def png_header(width: int, height: int) -> bytes:
+    return publish.PNG_SIGNATURE + (13).to_bytes(4, "big") + b"IHDR" + width.to_bytes(4, "big") + height.to_bytes(4, "big")
+
+
+class LogoAndReviewTest(unittest.TestCase):
+    def client(self, dry_run: bool = False) -> publish.MakeClient:
+        return publish.MakeClient("https://eu1.make.com", TOKEN, "test", dry_run=dry_run, verbose=True)
+
+    def test_repo_logo_is_uploaded_as_png(self) -> None:
+        fake = FakeMake({})
+        _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
+        self.assertEqual(fake.writes(), [("PUT", "/scraper-api/1/icon")])
+        self.assertIn("uploaded 512x512", output)
+        self.assertIn("bytes>", output)  # the PNG is not printed as text
+
+    def test_bad_logo_is_refused_before_sending(self) -> None:
+        tmp = pathlib.Path(__file__).with_name("_test_logo.png")
+        try:
+            for data, message in ((png_header(100, 100), "square PNG"), (png_header(512, 600), "square PNG"), (b"GIF89a", "not a PNG")):
+                tmp.write_bytes(data)
+                fake = FakeMake({})
+                with self.assertRaisesRegex(publish.PublishError, message):
+                    run(fake, publish.put_logo, self.client(), "scraper-api", "1", tmp)
+                self.assertEqual(fake.writes(), [])
+        finally:
+            tmp.unlink(missing_ok=True)
+
+    def test_missing_review_does_not_stop_the_run(self) -> None:
+        fake = FakeMake({("GET", "/scraper-api/1/review"): (404, {"message": "not found"})})
+        _, output = run(fake, publish.show_review, self.client(), "scraper-api", "1")
+        self.assertIn("no review data (HTTP 404)", output)
         self.assertEqual(fake.writes(), [])
 
 
