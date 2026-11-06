@@ -1,6 +1,6 @@
 {
-    "label": "Start a Crawl (Wait for Completion)",
-    "description": "Helper that starts a crawl, polls until the job reaches a terminal state (or the timeout is reached), and returns the final status with the first page of results. Best for low-volume scenarios — long polls hold a scenario operation open.",
+    "label": "Start a crawl (wait for completion)",
+    "description": "Starts a crawl, waits up to about 20 seconds for it to finish, and returns its status with the first page of results. If the crawl is still running, returns its current status and job ID; use Get a crawl to check it later.",
     "typeId": 4,
     "actionType": "create",
     "connection": "api-key"

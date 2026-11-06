@@ -8,10 +8,10 @@ Give your Make.com agents and scenarios web content for research and automation.
 
 [Integrations page](https://geonode.com/integrations/integration-make) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [View source on GitHub](https://github.com/geonodecom/integration-make) · [Complete guide](docs/guide.md)
 
-**Private app, access by request.** The existing Geonode app is deployed in Make's US2 zone as `scraper-api-production`. There is no public Make marketplace listing. This repository contains its Make Apps SDK source, not an npm or Python package.
+**Private app for now, access by request.** The Geonode app runs in Make's US2 zone and is being prepared for Make's public app review. There is no public Make listing yet. This repository contains its Make Apps SDK source, not an npm or Python package.
 
 <!-- BEGIN README NAV -->
-[Set up the Make.com connector](#set-up-the-makecom-connector) · [Example: website content → Google Sheets](#example-website-content--google-sheets) · [All 15 Make modules](#all-15-make-modules) · [Common questions](#common-questions)
+[Set up the Make.com connector](#set-up-the-makecom-connector) · [Example: website content → Google Sheets](#example-website-content--google-sheets) · [All 16 Make modules](#all-16-make-modules) · [Common questions](#common-questions)
 <!-- END README NAV -->
 
 ## Workflow ideas
@@ -24,7 +24,7 @@ Give your Make.com agents and scenarios web content for research and automation.
 
 1. [Request private app access](https://geonode.com/contact). Tell Geonode which Make organization and zone you use; accept the supplied invitation before searching for the app in the scenario editor. There is no public install link yet.
 2. Create an API key under **API Keys** in the [Geonode dashboard](https://app.geonode.com/).
-3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL (Sync)**.
+3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL**.
 4. Create an **API Key** connection and paste your Geonode key. The connection sends `X-Api-Key` and checks authenticated usage statistics.
 5. Enter `https://example.com` in **URL** and select **Markdown** in **Output Formats**. The module defaults to HTML, so select Markdown explicitly.
 6. Choose **Run once**. Inspect the output bundle: **Extracted Data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
@@ -34,27 +34,28 @@ A successful connection test checks authentication; the extraction output confir
 
 ## Example: website content → Google Sheets
 
-Use a URL from your scenario → **Extract a URL (Sync)** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
+Use a URL from your scenario → **Extract a URL** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
 
 The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled or live-tested scenario blueprints.
 
-## All 15 Make modules
+## All 16 Make modules
 
 | Capability | Modules | What you get |
 | --- | --- | --- |
-| Extract a page now | **Extract a URL (Sync)** | Markdown and/or HTML in the same operation. |
-| Extract in the background | **Extract a URL (Async)**; **Get an Extraction Job**; **List Extraction Jobs** | A job ID, subsequent status/results, or one bundle per listed job. |
-| Wait for a short extraction | **Extract a URL (Wait for Completion)** | Starts extraction and polls within the module. |
-| Crawl a website | **Start a Crawl**; **Get Crawl Status**; **Cancel a Crawl**; **Start a Crawl (Wait for Completion)** | Collect linked pages within configured depth and page limits. |
-| Process a URL list | **Start a Batch Extraction**; **Get Batch Status**; **Cancel a Batch**; **Start a Batch (Wait for Completion)** | Submit a list, follow its progress and retrieve results. |
-| Discover links | **Map URLs from a Site** | One bundle per discovered URL, with its discovery source. |
-| Check account usage | **Get Usage Statistics** | Usage information for the connected account. |
+| Extract a page now | **Extract a URL** | Markdown and/or HTML in the same operation. |
+| Extract in the background | **Start an extraction job**; **Get an extraction job**; **Search extraction jobs** | A job ID, subsequent status/results, or one bundle per listed job. |
+| Wait for a short extraction | **Extract a URL (wait for completion)** | Starts extraction and checks it for up to about 20 seconds. |
+| Crawl a website | **Start a crawl**; **Get a crawl**; **Cancel a crawl**; **Start a crawl (wait for completion)** | Collect linked pages within configured depth and page limits. |
+| Process a URL list | **Start a batch extraction**; **Get a batch**; **Cancel a batch**; **Start a batch (wait for completion)** | Submit a list, follow its progress and retrieve results. |
+| Discover links | **Search website URLs** | One bundle per discovered URL, with its discovery source. |
+| Check account usage | **Get usage statistics** | Usage information for the connected account. |
+| Call any API endpoint | **Make an API call** | Status code, headers and body of a Geonode API request sent with your connection. |
 
 ### Control how pages are retrieved
 
 Extraction, batch and crawl inputs expose **Render JavaScript**, browser wait settings, and proxy controls where defined by the module. Wait for a page lifecycle event or a CSS selector/XPath before capture. Setting a wait option enables JavaScript rendering. Country and proxy-type settings let you configure the request; rendering and account usage remain subject to your Geonode plan.
 
-For longer jobs, save the returned job ID and use separate start/status steps with bounded polling. The wait helpers hold the operation open and suit shorter tasks; configure their interval and maximum attempts. Do not resubmit a job just because a polling step times out.
+For longer jobs, save the returned job ID and use separate start/status steps with bounded polling. The wait modules check the job every 3 seconds for up to about 20 seconds, because Make's default time limit for a module is 40 seconds. If the job is still running, they return its current status and job ID instead of failing. Do not resubmit a job just because it is still running.
 
 ### Know which output to map
 
@@ -87,15 +88,16 @@ Requires Python 3.10 or newer. The source uses JSON and IMLJSON; no dependency i
 
 ```sh
 python3 scripts/test_client_header.py
+python3 scripts/test_publish_safety.py
 ```
 
 Edit shared request behavior in `base.imljson`, connection fields in `connections/api-key/`, and operation definitions in `modules/`. Each module declares metadata, input fields, request mapping, output fields and samples. The [full guide](docs/guide.md) describes the format and live scenario checks.
 
-The publisher is available for maintainers as `scripts/publish.py`. Its default template name (`scraper-api`) and zone (`eu1`) do **not** identify the deployed production app. Existing CI supplies the real app name, US2 zone, and relevant team settings. Do not run a publish command as part of local testing.
+The publisher is available for maintainers as `scripts/publish.py`. Its default template name (`scraper-api`) and zone (`eu1`) do **not** identify the deployed production app. Existing CI supplies the real app name, US2 zone, and relevant team settings. Do not run a publish command as part of local testing. The publisher never creates a new Make app unless `MAKE_ALLOW_CREATE=1` is set, and `MAKE_DRY_RUN=1` (or `--dry-run`) prints the changes without writing them.
 
 ## Source and releases
 
-Connection and module keys and template metadata are kept stable. A change to the app definition merged to `main` is published to the existing private app by the `Publish` workflow.
+Connection and module keys and template metadata are kept stable. The `Publish` workflow checks each change to the app definition merged to `main` with a dry run. To publish to the existing private app, run that workflow by hand with **dry_run** unticked. Set the `MAKE_PUBLISH_ON_PUSH` repository variable to `true` to publish on every merge instead.
 
 [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 

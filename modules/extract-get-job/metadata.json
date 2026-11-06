@@ -1,6 +1,6 @@
 {
-    "label": "Get an Extraction Job",
-    "description": "Retrieves the current status and (if completed) the extracted content for an async extraction job.",
+    "label": "Get an extraction job",
+    "description": "Returns the status of an extraction job and, once the job has completed, the extracted content.",
     "typeId": 4,
     "actionType": "read",
     "connection": "api-key"

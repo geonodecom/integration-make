@@ -63,17 +63,5 @@
         "label": "Results Page Size",
         "help": "How many page results to include in the final response slice.",
         "default": 50
-    },
-    {
-        "name": "poll_interval_seconds",
-        "type": "uinteger",
-        "label": "Poll Interval (s)",
-        "default": 10
-    },
-    {
-        "name": "max_attempts",
-        "type": "uinteger",
-        "label": "Max Poll Attempts",
-        "default": 60
     }
 ]

@@ -23,6 +23,9 @@ jobs:
       - name: Check the client header
         run: python scripts/test_client_header.py
 
+      - name: Check the publish safety rules
+        run: python scripts/test_publish_safety.py
+
       - name: Check that every app file is valid JSON
         run: |
           python - <<'PY'

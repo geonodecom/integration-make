@@ -1,6 +1,6 @@
 {
-    "label": "List Extraction Jobs",
-    "description": "Lists and filters extraction jobs. Each returned job is emitted as a separate bundle. Use the filters to narrow by status, URL, output format, or date range.",
+    "label": "Search extraction jobs",
+    "description": "Returns a list of extraction jobs filtered by job ID, URL, status, output format or creation date. Each job is a separate bundle.",
     "typeId": 9,
     "connection": "api-key"
 }

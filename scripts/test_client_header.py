@@ -33,7 +33,9 @@ class ClientHeaderTest(unittest.TestCase):
         for path in sorted((APP_ROOT / "modules").glob("*/api.imljson")):
             spec = json.loads(path.read_text(encoding="utf-8-sig"))
             for request in spec if isinstance(spec, list) else [spec]:
-                self.assertNotIn("headers", request, f"{path.relative_to(APP_ROOT)} sets its own headers")
+                # A module may only add the user's own headers (the universal module) on top of the base headers.
+                headers = request.get("headers", {})
+                self.assertEqual(list(headers), ["{{...}}"] if headers else [], f"{path.relative_to(APP_ROOT)} sets its own headers")
 
 
 if __name__ == "__main__":

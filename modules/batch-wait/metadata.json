@@ -1,6 +1,6 @@
 {
-    "label": "Start a Batch (Wait for Completion)",
-    "description": "Helper that starts a batch, polls until the job reaches a terminal state (or the timeout is reached), and returns the final status with the first page of results.",
+    "label": "Start a batch (wait for completion)",
+    "description": "Starts a batch extraction, waits up to about 20 seconds for it to finish, and returns its status with the first page of results. If the batch is still running, returns its current status and job ID; use Get a batch to check it later.",
     "typeId": 4,
     "actionType": "create",
     "connection": "api-key"

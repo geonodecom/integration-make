@@ -21,7 +21,25 @@
             }
         },
         "response": {
-            "temp": { "job_id": "{{body.job_id}}" }
+            "temp": { "job_id": "{{body.job_id}}" },
+            "output": null
+        }
+    },
+    {
+        "url": "/crawl/{{temp.job_id}}",
+        "method": "GET",
+        "qs": {
+            "page": 1,
+            "page_size": 1
+        },
+        "response": {
+            "temp": { "status": "{{body.status}}" },
+            "output": null
+        },
+        "repeat": {
+            "condition": "{{temp.status === 'queued' || temp.status === 'processing'}}",
+            "delay": 3000,
+            "limit": 7
         }
     },
     {
@@ -32,12 +50,6 @@
             "page_size": "{{parameters.results_page_size}}"
         },
         "response": {
-            "valid": {
-                "condition": "{{body.status === 'completed' || body.status === 'failed' || body.status === 'cancelled'}}",
-                "message": "Crawl job did not finish before the timeout (last status: {{body.status}})"
-            },
-            "wait": "{{parameters.poll_interval_seconds * 1000}}",
-            "maxRetries": "{{parameters.max_attempts}}",
             "output": "{{body}}"
         }
     }

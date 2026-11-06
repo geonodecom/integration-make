@@ -8,10 +8,11 @@ Run from the repository root:
 
 ```sh
 python3 scripts/test_client_header.py
+python3 scripts/test_publish_safety.py
 ```
 
 Keep existing package names, node/credential identifiers, module keys, and connection fields compatible. Add or update focused tests when behavior changes. Document user-facing changes in `CHANGELOG.md`. Live platform tests need a separate test account and explicit release coordination; passing local checks is not a live integration test.
 
 ## Releases
 
-A change to the app definition merged to `main` is published to Make by the `Publish` workflow, so review app changes before merging.
+A change to the app definition merged to `main` is checked against Make with a dry run by the `Publish` workflow. A real publish is a manual run of that workflow with **dry_run** unticked, unless the `MAKE_PUBLISH_ON_PUSH` variable is `true`, so review app changes before merging.

@@ -1,6 +1,6 @@
 {
-    "label": "Extract a URL (Sync)",
-    "description": "Extracts clean HTML and/or markdown content from a single URL and blocks until the result is ready. Use the async variant for slow targets or when JS rendering is required.",
+    "label": "Extract a URL",
+    "description": "Returns the content of a web page as HTML or Markdown in the same step. For slow pages or pages that need JavaScript rendering, use Start an extraction job.",
     "typeId": 4,
     "actionType": "read",
     "connection": "api-key"

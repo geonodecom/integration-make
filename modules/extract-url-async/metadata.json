@@ -1,6 +1,6 @@
 {
-    "label": "Extract a URL (Async)",
-    "description": "Queues an asynchronous extraction job and returns a job ID immediately. Poll `Get Extraction Job` or use `Wait for Extraction` to retrieve the result once it completes.",
+    "label": "Start an extraction job",
+    "description": "Starts an extraction job for a URL and returns its job ID right away. Use Get an extraction job to read the result when the job has finished.",
     "typeId": 4,
     "actionType": "create",
     "connection": "api-key"

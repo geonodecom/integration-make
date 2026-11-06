@@ -1,6 +1,6 @@
 {
-    "label": "Start a Crawl",
-    "description": "Queues a crawl job that walks a website starting from a seed URL up to a given depth and page limit. Returns a job ID immediately.",
+    "label": "Start a crawl",
+    "description": "Starts a crawl that follows links from a seed URL, within a depth and page limit, and returns its job ID right away.",
     "typeId": 4,
     "actionType": "create",
     "connection": "api-key"
