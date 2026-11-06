@@ -440,7 +440,7 @@ def put_logo(client: MakeClient, app_name: str, version: str, logo_path: pathlib
     if 200 <= current_status < 300 and same_picture(current, data):
         print(f"  logo unchanged ({width}x{height}; Make's copy has the same pixels)")
         return
-    print(f"  current logo: {describe_png(current) if 200 <= current_status < 300 else f'none (HTTP {current_status})'}")
+    print(f"  current logo: {describe_png(current, data) if 200 <= current_status < 300 else f'none (HTTP {current_status})'}")
     status, text = client.request("PUT", f"/{app_name}/{version}/icon", body=data, content_type="image/png")
     client.expect_ok("PUT", f"/{app_name}/{version}/icon", status, text)
     print(f"  {'would upload' if client.dry_run else 'uploaded'} {width}x{height}, {len(data)} bytes")
@@ -521,12 +521,28 @@ def same_picture(a: bytes, b: bytes) -> bool:
     return True
 
 
-def describe_png(data: bytes) -> str:
+def describe_png(data: bytes, ours: bytes | None = None) -> str:
+    """Size and format of a PNG, and how its pixels differ from ours when both decode."""
     try:
         width, height = png_size(data)
     except PublishError:
         return f"{len(data)} bytes, not a PNG"
-    return f"{width}x{height} PNG, {len(data)} bytes"
+    text = f"{width}x{height} PNG, {len(data)} bytes, bit depth {data[24]}, colour type {data[25]}"
+    if ours is None:
+        return text
+    try:
+        wa, ha, pa = png_pixels(data)
+        wb, hb, pb = png_pixels(ours)
+    except (PublishError, zlib.error, IndexError) as exc:
+        return f"{text}; pixels not compared ({exc})"
+    if (wa, ha) != (wb, hb):
+        return text
+    diff = [i for i in range(0, len(pa), 4) if pa[i:i + 4] != pb[i:i + 4] and not (pa[i + 3] == pb[i + 3] == 0)]
+    if not diff:
+        return f"{text}; same pixels as ours"
+    i = diff[0]
+    return (f"{text}; {len(diff)} of {wa * ha} pixels differ from ours, "
+            f"e.g. Make {tuple(pa[i:i + 4])} vs ours {tuple(pb[i:i + 4])}")
 
 
 def show_review(client: MakeClient, app_name: str, version: str) -> None:
