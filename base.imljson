@@ -22,7 +22,7 @@
                 "503": "ConnectionError",
                 "504": "ConnectionError"
             },
-            "message": "[{{statusCode}}] {{ifempty(body.code, 'ERROR')}}: {{ifempty(body.message, 'Unknown error')}}"
+            "message": "[{{statusCode}}] {{ifempty(body.code, 'ERROR')}}: {{ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error')))}}"
         }
     },
     "log": {
