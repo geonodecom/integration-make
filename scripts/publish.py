@@ -436,9 +436,9 @@ def put_logo(client: MakeClient, app_name: str, version: str, logo_path: pathlib
     if width != height or not 512 <= width <= 2048 or len(data) > 500_000:
         raise PublishError(f"Make needs a square PNG of 512-2048 px and at most 500 kB; the logo is {width}x{height}, {len(data)} bytes.")
     current_status, current = client.get_bytes(f"/{app_name}/{version}/icon/{width}")
-    # Make re-encodes uploads, so compare pixels, not bytes.
+    # Make re-encodes and recolours uploads, so compare shape, not bytes.
     if 200 <= current_status < 300 and same_picture(current, data):
-        print(f"  logo unchanged ({width}x{height}; Make's copy has the same pixels)")
+        print(f"  logo unchanged ({width}x{height}; Make's copy has the same shape)")
         return
     print(f"  current logo: {describe_png(current, data) if 200 <= current_status < 300 else f'none (HTTP {current_status})'}")
     status, text = client.request("PUT", f"/{app_name}/{version}/icon", body=data, content_type="image/png")
@@ -505,20 +505,14 @@ def png_pixels(data: bytes) -> tuple[int, int, bytes]:
 
 
 def same_picture(a: bytes, b: bytes) -> bool:
-    """True when two PNGs show the same pixels; fully transparent pixels match whatever their colour."""
+    """True when two PNGs have the same shape: equal size and alpha channel.
+    Make stores the logo recoloured (black becomes white), so colour is not compared."""
     try:
         wa, ha, pa = png_pixels(a)
         wb, hb, pb = png_pixels(b)
     except (PublishError, zlib.error, IndexError):
         return False
-    if (wa, ha) != (wb, hb):
-        return False
-    for i in range(0, len(pa), 4):
-        if pa[i + 3] == pb[i + 3] == 0:
-            continue
-        if pa[i:i + 4] != pb[i:i + 4]:
-            return False
-    return True
+    return (wa, ha) == (wb, hb) and pa[3::4] == pb[3::4]
 
 
 def describe_png(data: bytes, ours: bytes | None = None) -> str:
@@ -539,12 +533,9 @@ def describe_png(data: bytes, ours: bytes | None = None) -> str:
         return f"{text}; pixels not compared ({exc})"
     if (wa, ha) != (wb, hb):
         return text
-    diff = [i for i in range(0, len(pa), 4) if pa[i:i + 4] != pb[i:i + 4] and not (pa[i + 3] == pb[i + 3] == 0)]
-    if not diff:
-        return f"{text}; same pixels as ours"
-    i = diff[0]
-    return (f"{text}; {len(diff)} of {wa * ha} pixels differ from ours, "
-            f"e.g. Make {tuple(pa[i:i + 4])} vs ours {tuple(pb[i:i + 4])}")
+    shape = sum(1 for i in range(3, len(pa), 4) if pa[i] != pb[i])
+    colour = sum(1 for i in range(0, len(pa), 4) if pa[i + 3] and pa[i:i + 3] != pb[i:i + 3])
+    return f"{text}; alpha differs in {shape} of {wa * ha} pixels, colour in {colour}"
 
 
 def show_review(client: MakeClient, app_name: str, version: str) -> None:

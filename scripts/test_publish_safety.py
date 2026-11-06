@@ -184,21 +184,23 @@ class LogoAndReviewTest(unittest.TestCase):
         self.assertIn("bytes>", output)  # the PNG is not printed as text
 
     def test_same_logo_on_make_is_not_uploaded_again(self) -> None:
-        # Make re-encodes uploads: same pixels, different bytes.
+        # Make re-encodes uploads and stores black as white: same shape, other colour and bytes.
         width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
-        reencoded = encode_png(width, height, pixels)
-        self.assertNotEqual(reencoded, publish.LOGO_PATH.read_bytes())
-        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, reencoded)})
+        whitened = bytes(255 if i % 4 != 3 else v for i, v in enumerate(pixels))
+        as_make_keeps_it = encode_png(width, height, whitened)
+        self.assertNotEqual(as_make_keeps_it, publish.LOGO_PATH.read_bytes())
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, as_make_keeps_it)})
         _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
         self.assertEqual(fake.writes(), [])
         self.assertIn("logo unchanged (512x512", output)
 
-    def test_one_changed_pixel_is_a_different_picture(self) -> None:
+    def test_one_changed_alpha_is_a_different_picture(self) -> None:
         width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
-        opaque = pixels.index(b"\x00\x00\x00\xff")
-        changed = pixels[:opaque] + b"\xff\x00\x00\xff" + pixels[opaque + 4:]
+        clear = pixels.index(b"\x00\x00\x00\x00")
+        changed = pixels[:clear] + b"\x00\x00\x00\xff" + pixels[clear + 4:]
         self.assertTrue(publish.same_picture(encode_png(width, height, pixels), publish.LOGO_PATH.read_bytes()))
         self.assertFalse(publish.same_picture(encode_png(width, height, changed), publish.LOGO_PATH.read_bytes()))
+        self.assertIn("alpha differs in 1 of", publish.describe_png(encode_png(width, height, changed), publish.LOGO_PATH.read_bytes()))
 
     def test_different_logo_on_make_is_described_then_replaced(self) -> None:
         fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, png_header(256, 256))})
