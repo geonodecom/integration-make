@@ -48,6 +48,7 @@ import pathlib
 import sys
 import urllib.error
 import urllib.request
+import zlib
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_ZONE = "https://eu1.make.com"
@@ -213,6 +214,25 @@ class MakeClient:
         if self.verbose:
             print(f"     <- {status}: {preview(text)}")
         return status, text
+
+    def get_bytes(self, path: str) -> tuple[int, bytes]:
+        """A GET whose answer is binary, such as the app logo. Sent in dry runs too."""
+        url = self.base + path
+        if self.verbose or self.dry_run:
+            print(f"  -> GET {url}")
+        req = urllib.request.Request(url, method="GET")
+        req.add_header("Authorization", f"Token {self.token}")
+        req.add_header("User-Agent", self.user_agent)
+        try:
+            with urllib.request.urlopen(req) as resp:
+                status, data = resp.status, resp.read()
+        except urllib.error.HTTPError as exc:
+            status, data = exc.code, exc.read()
+        except urllib.error.URLError as exc:
+            raise PublishError(f"Network error calling GET {url}: {exc}") from exc
+        if self.verbose:
+            print(f"     <- {status}: <{len(data)} bytes>")
+        return status, data
 
     @staticmethod
     def _encode_body(body: object) -> bytes | None:
@@ -415,9 +435,107 @@ def put_logo(client: MakeClient, app_name: str, version: str, logo_path: pathlib
     width, height = png_size(data)
     if width != height or not 512 <= width <= 2048 or len(data) > 500_000:
         raise PublishError(f"Make needs a square PNG of 512-2048 px and at most 500 kB; the logo is {width}x{height}, {len(data)} bytes.")
+    current_status, current = client.get_bytes(f"/{app_name}/{version}/icon/{width}")
+    # Make re-encodes and recolours uploads, so compare shape, not bytes.
+    if 200 <= current_status < 300 and same_picture(current, data):
+        print(f"  logo unchanged ({width}x{height}; Make's copy has the same shape)")
+        return
+    print(f"  current logo: {describe_png(current, data) if 200 <= current_status < 300 else f'none (HTTP {current_status})'}")
     status, text = client.request("PUT", f"/{app_name}/{version}/icon", body=data, content_type="image/png")
     client.expect_ok("PUT", f"/{app_name}/{version}/icon", status, text)
     print(f"  {'would upload' if client.dry_run else 'uploaded'} {width}x{height}, {len(data)} bytes")
+
+
+def png_pixels(data: bytes) -> tuple[int, int, bytes]:
+    """Decodes an 8-bit, non-interlaced PNG to RGBA bytes with the standard library."""
+    pos, idat, palette, alpha = 8, b"", b"", b""
+    width = height = depth = ctype = interlace = None
+    while pos < len(data):
+        size = int.from_bytes(data[pos:pos + 4], "big")
+        kind, body = data[pos + 4:pos + 8], data[pos + 8:pos + 8 + size]
+        pos += 12 + size
+        if kind == b"IHDR":
+            width, height = int.from_bytes(body[0:4], "big"), int.from_bytes(body[4:8], "big")
+            depth, ctype, interlace = body[8], body[9], body[12]
+        elif kind == b"PLTE":
+            palette = body
+        elif kind == b"tRNS":
+            alpha = body
+        elif kind == b"IDAT":
+            idat += body
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}.get(ctype)
+    if depth != 8 or interlace != 0 or channels is None:
+        raise PublishError(f"Cannot compare this PNG (bit depth {depth}, colour type {ctype}, interlace {interlace}).")
+    raw, stride = zlib.decompress(idat), width * channels
+    rows, prev = [], bytearray(stride)
+    for y in range(height):
+        start = y * (stride + 1)
+        kind, line = raw[start], bytearray(raw[start + 1:start + 1 + stride])
+        for i in range(stride):
+            left = line[i - channels] if i >= channels else 0
+            up, corner = prev[i], prev[i - channels] if i >= channels else 0
+            if kind == 1:
+                line[i] = (line[i] + left) & 255
+            elif kind == 2:
+                line[i] = (line[i] + up) & 255
+            elif kind == 3:
+                line[i] = (line[i] + (left + up) // 2) & 255
+            elif kind == 4:
+                p = left + up - corner
+                pa, pb, pc = abs(p - left), abs(p - up), abs(p - corner)
+                line[i] = (line[i] + (left if pa <= pb and pa <= pc else up if pb <= pc else corner)) & 255
+        rows.append(bytes(line))
+        prev = line
+    out = bytearray()
+    for line in rows:
+        for x in range(width):
+            px = line[x * channels:(x + 1) * channels]
+            if ctype == 6:
+                out += px
+            elif ctype == 2:
+                out += px + b"\xff"
+            elif ctype == 4:
+                out += bytes((px[0], px[0], px[0], px[1]))
+            elif ctype == 0:
+                out += bytes((px[0], px[0], px[0], 255))
+            else:
+                i = px[0]
+                out += palette[i * 3:i * 3 + 3] + bytes((alpha[i] if i < len(alpha) else 255,))
+    return width, height, bytes(out)
+
+
+def same_picture(a: bytes, b: bytes) -> bool:
+    """True when two PNGs have the same shape: equal size and alpha channel.
+    Make stores the logo recoloured (black becomes white), so colour is not compared."""
+    try:
+        wa, ha, pa = png_pixels(a)
+        wb, hb, pb = png_pixels(b)
+    except (PublishError, zlib.error, IndexError):
+        return False
+    return (wa, ha) == (wb, hb) and pa[3::4] == pb[3::4]
+
+
+def describe_png(data: bytes, ours: bytes | None = None) -> str:
+    """Size and format of a PNG, and how its pixels differ from ours when both decode."""
+    try:
+        width, height = png_size(data)
+    except PublishError:
+        return f"{len(data)} bytes, not a PNG"
+    text = f"{width}x{height} PNG, {len(data)} bytes"
+    if len(data) > 25:
+        text += f", bit depth {data[24]}, colour type {data[25]}"
+    if ours is None:
+        return text
+    try:
+        wa, ha, pa = png_pixels(data)
+        wb, hb, pb = png_pixels(ours)
+    except (PublishError, zlib.error, IndexError) as exc:
+        return f"{text}; pixels not compared ({exc})"
+    if (wa, ha) != (wb, hb):
+        return text
+    shape = sum(1 for i in range(3, len(pa), 4) if pa[i] != pb[i])
+    colour = sum(1 for i in range(0, len(pa), 4) if pa[i + 3] and pa[i:i + 3] != pb[i:i + 3])
+    return f"{text}; alpha differs in {shape} of {wa * ha} pixels, colour in {colour}"
 
 
 def show_review(client: MakeClient, app_name: str, version: str) -> None:

@@ -14,6 +14,7 @@ import pathlib
 import sys
 import unittest
 import urllib.error
+import zlib
 from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -23,9 +24,9 @@ TOKEN = "fake-token-for-tests"
 
 
 class FakeResponse:
-    def __init__(self, status: int, body: str) -> None:
+    def __init__(self, status: int, body: str | bytes) -> None:
         self.status = status
-        self._body = body.encode("utf-8")
+        self._body = body if isinstance(body, bytes) else body.encode("utf-8")
 
     def read(self) -> bytes:
         return self._body
@@ -50,9 +51,10 @@ class FakeMake:
         method = req.get_method()
         self.calls.append((method, path))
         status, body = self.routes.get((method, path), self.default)
-        text = body if isinstance(body, str) else json.dumps(body)
+        text = body if isinstance(body, (str, bytes)) else json.dumps(body)
         if status >= 400:
-            raise urllib.error.HTTPError(req.full_url, status, "error", {}, io.BytesIO(text.encode("utf-8")))
+            raw = text if isinstance(text, bytes) else text.encode("utf-8")
+            raise urllib.error.HTTPError(req.full_url, status, "error", {}, io.BytesIO(raw))
         return FakeResponse(status, text)
 
     def writes(self) -> list[tuple[str, str]]:
@@ -155,6 +157,17 @@ class MainTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [])
 
 
+def encode_png(width: int, height: int, rgba: bytes) -> bytes:
+    """An RGBA PNG with no row filters, so its bytes differ from the repo logo's."""
+    raw = b"".join(b"\x00" + rgba[y * width * 4:(y + 1) * width * 4] for y in range(height))
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return len(body).to_bytes(4, "big") + kind + body + zlib.crc32(kind + body).to_bytes(4, "big")
+
+    ihdr = width.to_bytes(4, "big") + height.to_bytes(4, "big") + bytes((8, 6, 0, 0, 0))
+    return publish.PNG_SIGNATURE + chunk(b"IHDR", ihdr) + chunk(b"IDAT", zlib.compress(raw, 1)) + chunk(b"IEND", b"")
+
+
 def png_header(width: int, height: int) -> bytes:
     return publish.PNG_SIGNATURE + (13).to_bytes(4, "big") + b"IHDR" + width.to_bytes(4, "big") + height.to_bytes(4, "big")
 
@@ -169,6 +182,31 @@ class LogoAndReviewTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [("PUT", "/scraper-api/1/icon")])
         self.assertIn("uploaded 512x512", output)
         self.assertIn("bytes>", output)  # the PNG is not printed as text
+
+    def test_same_logo_on_make_is_not_uploaded_again(self) -> None:
+        # Make re-encodes uploads and stores black as white: same shape, other colour and bytes.
+        width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
+        whitened = bytes(255 if i % 4 != 3 else v for i, v in enumerate(pixels))
+        as_make_keeps_it = encode_png(width, height, whitened)
+        self.assertNotEqual(as_make_keeps_it, publish.LOGO_PATH.read_bytes())
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, as_make_keeps_it)})
+        _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
+        self.assertEqual(fake.writes(), [])
+        self.assertIn("logo unchanged (512x512", output)
+
+    def test_one_changed_alpha_is_a_different_picture(self) -> None:
+        width, height, pixels = publish.png_pixels(publish.LOGO_PATH.read_bytes())
+        clear = pixels.index(b"\x00\x00\x00\x00")
+        changed = pixels[:clear] + b"\x00\x00\x00\xff" + pixels[clear + 4:]
+        self.assertTrue(publish.same_picture(encode_png(width, height, pixels), publish.LOGO_PATH.read_bytes()))
+        self.assertFalse(publish.same_picture(encode_png(width, height, changed), publish.LOGO_PATH.read_bytes()))
+        self.assertIn("alpha differs in 1 of", publish.describe_png(encode_png(width, height, changed), publish.LOGO_PATH.read_bytes()))
+
+    def test_different_logo_on_make_is_described_then_replaced(self) -> None:
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, png_header(256, 256))})
+        _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
+        self.assertEqual(fake.writes(), [("PUT", "/scraper-api/1/icon")])
+        self.assertIn("current logo: 256x256 PNG", output)
 
     def test_bad_logo_is_refused_before_sending(self) -> None:
         tmp = pathlib.Path(__file__).with_name("_test_logo.png")
