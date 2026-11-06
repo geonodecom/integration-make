@@ -23,9 +23,9 @@ TOKEN = "fake-token-for-tests"
 
 
 class FakeResponse:
-    def __init__(self, status: int, body: str) -> None:
+    def __init__(self, status: int, body: str | bytes) -> None:
         self.status = status
-        self._body = body.encode("utf-8")
+        self._body = body if isinstance(body, bytes) else body.encode("utf-8")
 
     def read(self) -> bytes:
         return self._body
@@ -50,9 +50,10 @@ class FakeMake:
         method = req.get_method()
         self.calls.append((method, path))
         status, body = self.routes.get((method, path), self.default)
-        text = body if isinstance(body, str) else json.dumps(body)
+        text = body if isinstance(body, (str, bytes)) else json.dumps(body)
         if status >= 400:
-            raise urllib.error.HTTPError(req.full_url, status, "error", {}, io.BytesIO(text.encode("utf-8")))
+            raw = text if isinstance(text, bytes) else text.encode("utf-8")
+            raise urllib.error.HTTPError(req.full_url, status, "error", {}, io.BytesIO(raw))
         return FakeResponse(status, text)
 
     def writes(self) -> list[tuple[str, str]]:
@@ -169,6 +170,18 @@ class LogoAndReviewTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [("PUT", "/scraper-api/1/icon")])
         self.assertIn("uploaded 512x512", output)
         self.assertIn("bytes>", output)  # the PNG is not printed as text
+
+    def test_same_logo_on_make_is_not_uploaded_again(self) -> None:
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, publish.LOGO_PATH.read_bytes())})
+        _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
+        self.assertEqual(fake.writes(), [])
+        self.assertIn("logo unchanged (512x512", output)
+
+    def test_different_logo_on_make_is_described_then_replaced(self) -> None:
+        fake = FakeMake({("GET", "/scraper-api/1/icon/512"): (200, png_header(256, 256))})
+        _, output = run(fake, publish.put_logo, self.client(), "scraper-api", "1")
+        self.assertEqual(fake.writes(), [("PUT", "/scraper-api/1/icon")])
+        self.assertIn("current logo: 256x256 PNG", output)
 
     def test_bad_logo_is_refused_before_sending(self) -> None:
         tmp = pathlib.Path(__file__).with_name("_test_logo.png")

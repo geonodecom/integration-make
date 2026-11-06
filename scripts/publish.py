@@ -214,6 +214,25 @@ class MakeClient:
             print(f"     <- {status}: {preview(text)}")
         return status, text
 
+    def get_bytes(self, path: str) -> tuple[int, bytes]:
+        """A GET whose answer is binary, such as the app logo. Sent in dry runs too."""
+        url = self.base + path
+        if self.verbose or self.dry_run:
+            print(f"  -> GET {url}")
+        req = urllib.request.Request(url, method="GET")
+        req.add_header("Authorization", f"Token {self.token}")
+        req.add_header("User-Agent", self.user_agent)
+        try:
+            with urllib.request.urlopen(req) as resp:
+                status, data = resp.status, resp.read()
+        except urllib.error.HTTPError as exc:
+            status, data = exc.code, exc.read()
+        except urllib.error.URLError as exc:
+            raise PublishError(f"Network error calling GET {url}: {exc}") from exc
+        if self.verbose:
+            print(f"     <- {status}: <{len(data)} bytes>")
+        return status, data
+
     @staticmethod
     def _encode_body(body: object) -> bytes | None:
         if body is None:
@@ -415,9 +434,22 @@ def put_logo(client: MakeClient, app_name: str, version: str, logo_path: pathlib
     width, height = png_size(data)
     if width != height or not 512 <= width <= 2048 or len(data) > 500_000:
         raise PublishError(f"Make needs a square PNG of 512-2048 px and at most 500 kB; the logo is {width}x{height}, {len(data)} bytes.")
+    current_status, current = client.get_bytes(f"/{app_name}/{version}/icon/{width}")
+    if 200 <= current_status < 300 and current == data:
+        print(f"  logo unchanged ({width}x{height}, {len(data)} bytes)")
+        return
+    print(f"  current logo: {describe_png(current) if 200 <= current_status < 300 else f'none (HTTP {current_status})'}")
     status, text = client.request("PUT", f"/{app_name}/{version}/icon", body=data, content_type="image/png")
     client.expect_ok("PUT", f"/{app_name}/{version}/icon", status, text)
     print(f"  {'would upload' if client.dry_run else 'uploaded'} {width}x{height}, {len(data)} bytes")
+
+
+def describe_png(data: bytes) -> str:
+    try:
+        width, height = png_size(data)
+    except PublishError:
+        return f"{len(data)} bytes, not a PNG"
+    return f"{width}x{height} PNG, {len(data)} bytes"
 
 
 def show_review(client: MakeClient, app_name: str, version: str) -> None:
