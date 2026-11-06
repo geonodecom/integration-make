@@ -1,3 +1,7 @@
+# Make app logo
+
+`make-logo.png`: the Geonode mark from the brand kit (`geonode-mark-512.png`), with its shape and edges kept and its colour set to black. Make shows black as white on the app's theme colour.
+
 # Banner artwork
 
 Geonode logo: existing Geonode brand vector. Platform marks identify the integration; they do not imply endorsement.

@@ -4,6 +4,8 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- The publisher uploads the app logo (`assets/make-logo.png`, the Geonode mark) and prints the app's review state on every run, dry runs included.
+
 - New **Make an API call** module (`make-api-call`). It sends any request to a path on `https://scraper.geonode.io` with the connection's API key and returns the status code, headers and body.
 
 - The three wait modules now use Make's `repeat` directive. They check the job every 3 seconds for up to about 20 seconds, to stay inside Make's 40-second module limit. If the job is still running, they return its current status and job ID instead of an error. The **Poll Interval** and **Max Poll Attempts** inputs are gone, because Make needs fixed values for `repeat`.
