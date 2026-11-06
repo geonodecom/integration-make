@@ -255,7 +255,7 @@ def upload_dir_sections(client: MakeClient, directory: pathlib.Path, sections: t
             print(f"  skip {section} (empty)")
             continue
         upload_section(client, primary(section), content, fallback=fallback(section) if fallback else None)
-        print(f"  put {section}")
+        print(f"  {'would put' if client.dry_run else 'put'} {section}")
 
 
 # ---------- ensure resources exist ----------
@@ -313,7 +313,7 @@ def _update_app(client: MakeClient, metadata: dict, app_name: str, version: str,
         print(f"  {key} -> {value!r}")
     status, text = client.request("PATCH", f"/{app_name}/{version}{qs}", body=wanted)
     client.expect_ok("PATCH", f"/{app_name}/{version}", status, text)
-    print(f"  metadata updated ({app_name} v{version})")
+    print(f"  metadata {'would be updated' if client.dry_run else 'updated'} ({app_name} v{version})")
 
 
 def _list_apps(client: MakeClient, team_id: str | None) -> list:
@@ -461,7 +461,7 @@ def ensure_connection(client: MakeClient, app_name: str, conn_dir: pathlib.Path)
             else:
                 client.expect_ok("POST", f"/{app_name}/connections", status, text)
                 resolved = extract_name(text, "appConnection", "connection", "data", fallback=api_name)
-                print(f"  created as {resolved}")
+                print(f"  {'would be created' if client.dry_run else 'created'} as {resolved}")
     else:
         client.expect_ok("GET", f"/{app_name}/connections/{api_name}", status, body)
         resolved = extract_name(body, "appConnection", "connection", "data", fallback=api_name)
@@ -498,7 +498,7 @@ def ensure_module(client: MakeClient, app_name: str, version: str, module_dir: p
             print("  already exists")
         else:
             client.expect_ok("POST", f"/{app_name}/{version}/modules", status, text)
-            print("  created")
+            print("  would be created" if client.dry_run else "  created")
     else:
         client.expect_ok("GET", f"/{app_name}/{version}/modules/{api_name}", status, body)
         # Label and description are set only on create, so keep existing modules in sync.

@@ -128,8 +128,8 @@ class MainTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [])
 
     def test_dry_run_env_sends_only_reads(self) -> None:
-        # Every resource exists but differs, so a real run would PATCH and PUT.
-        fake = FakeMake({})
+        # Every resource but one module exists and differs, so a real run would PATCH, PUT and POST.
+        fake = FakeMake({("GET", "/scraper-api/1/modules/makeApiCall"): (404, {"message": "Module not found"})})
         with clean_env(**{publish.DRY_RUN_ENV: "1"}):
             code, output = run(fake, publish.main, self.ARGS)
         self.assertEqual(code, 0)
@@ -137,6 +137,12 @@ class MainTest(unittest.TestCase):
         self.assertEqual(fake.writes(), [])
         self.assertIn("[dry run: not sent]", output)
         self.assertNotIn(TOKEN, output)
+        # Nothing is reported as done when it was not sent.
+        self.assertIn("metadata would be updated", output)
+        self.assertIn("would be created", output)
+        self.assertIn("would put api", output)
+        for done in ("metadata updated", "  created", "  put "):
+            self.assertNotIn(done, output)
 
     def test_dry_run_never_creates_even_with_opt_in(self) -> None:
         fake = FakeMake(dict(APP_MISSING))
