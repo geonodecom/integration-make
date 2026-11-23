@@ -36,18 +36,26 @@ def labels(node, found):
     return found
 
 
+def module_files(name: str) -> list[pathlib.Path]:
+    files = sorted(MODULES.glob(f"*/{name}"))
+    assert len(files) >= 16, f"only {len(files)} modules/*/{name} files found"
+    return files
+
+
 class ReviewRulesTest(unittest.TestCase):
     def test_labels_are_sentence_case(self) -> None:
-        files = sorted(MODULES.glob("*/expect.imljson")) + sorted(MODULES.glob("*/interface.imljson"))
-        files.append(APP_ROOT / "connections/api-key/parameters.imljson")
+        files = module_files("expect.imljson") + module_files("interface.imljson") + module_files("metadata.json")
+        files += [APP_ROOT / "connections/api-key/parameters.imljson", APP_ROOT / "metadata.json"]
         for path in files:
-            for label in labels(load(path), []):
+            found = labels(load(path), [])
+            self.assertTrue(found, f"{path.relative_to(APP_ROOT)} has no labels")
+            for label in found:
                 for word in label.split()[1:]:
                     word = word.strip("()")
                     self.assertFalse(word[:1].isupper() and word not in PROPER, f"{path.relative_to(APP_ROOT)}: {label!r}")
 
     def test_every_input_has_help(self) -> None:
-        for path in sorted(MODULES.glob("*/expect.imljson")) + [APP_ROOT / "connections/api-key/parameters.imljson"]:
+        for path in module_files("expect.imljson") + [APP_ROOT / "connections/api-key/parameters.imljson"]:
             for field in load(path):
                 help_text = field.get("help", "")
                 self.assertTrue(help_text, f"{path.relative_to(APP_ROOT)}: {field['name']} has no help")
@@ -55,9 +63,9 @@ class ReviewRulesTest(unittest.TestCase):
                     self.assertNotIn(jargon, help_text, f"{path.relative_to(APP_ROOT)}: {field['name']}")
 
     def test_search_modules_have_the_standard_limit(self) -> None:
-        for path in sorted(MODULES.glob("*/metadata.json")):
-            if load(path)["typeId"] != 9:
-                continue
+        searches = [path for path in module_files("metadata.json") if load(path)["typeId"] == 9]
+        self.assertEqual(len(searches), 2)
+        for path in searches:
             fields = load(path.with_name("expect.imljson"))
             limit = fields[-1]
             self.assertEqual((limit["name"], limit["label"], limit["type"], limit.get("default")), ("limit", "Limit", "uinteger", 10), path.parent.name)
@@ -75,11 +83,19 @@ class ReviewRulesTest(unittest.TestCase):
         self.assertEqual(api["pagination"], {"qs": {"page": "{{pagination.page}}"}, "condition": "{{body.page < body.page_count}}"})
         self.assertEqual(api["qs"]["page_size"], 100)
 
+    def test_empty_dates_are_left_out(self) -> None:
+        # The API answers 422 to `start_date=`, so an empty date must not be sent at all.
+        for module in ("extract-list-jobs", "get-statistics"):
+            qs = load(MODULES / module / "api.imljson")["qs"]
+            for name in ("start_date", "end_date"):
+                self.assertEqual(qs[name], f"{{{{if(parameters.{name}, formatDate(parameters.{name}, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), undefined)}}}}", module)
+
     def test_errors_show_the_api_message(self) -> None:
         message = load(APP_ROOT / "base.imljson")["response"]["error"]["message"]
         # A failed sync extraction wraps its error: {"error": {"code", "message"}, "tokens_charged"}.
         for path in ("body.error.message", "body.error.code", "body.message", "body.code", "body.detail[1].msg"):
             self.assertIn(path, message)
+        self.assertNotIn("'ERROR'", message)  # no made-up code when the API sends none
 
     def test_api_key_is_sanitized(self) -> None:
         for relative in ("base.imljson", "connections/api-key/api.imljson"):

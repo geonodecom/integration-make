@@ -331,11 +331,14 @@ Before publishing, verify in a Make scenario:
 - [ ] `Start an extraction job` → `Get an extraction job` chain.
 - [ ] `Extract a URL (wait for completion)`: finishes within about 20 seconds, or returns the running status.
 - [ ] `Search extraction jobs`: pagination iterates all pages (needs more than
-      100 jobs); date filters work, and empty dates send nothing.
+      100 jobs); date filters work, and an
+      untouched date or a date mapped to an empty value sends no `start_date` or
+      `end_date`.
 - [ ] `Start a crawl` → `Get a crawl` → `Cancel a crawl` lifecycle.
 - [ ] `Start a batch extraction` → `Get a batch` lifecycle.
 - [ ] `Search website URLs`: emits a bundle per discovered link.
-- [ ] `Get usage statistics`: date range filter works.
+- [ ] `Get usage statistics`: date range filter works; untouched and
+      mapped-empty dates send nothing.
 - [ ] `Make an API call`: `GET /v1/statistics` returns status 200 with a body.
 - [ ] A failed `Extract a URL` shows the API's message, not "Unknown error".
 - [ ] A 401 / 402 / 422 / 429 from the API maps to the right Make error type

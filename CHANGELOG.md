@@ -4,11 +4,11 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
-- Changes for Make's app review. **Search extraction jobs** no longer has the **URL** filter, because the API dropped it on purpose and answers 400 when it is set. Its pagination now uses Make's `{{pagination.page}}`. **Limit** fields on the two search modules default to 10 and use Make's standard help text. **Search website URLs** now leaves **Include subdomains** off by default, like the API. Labels are in sentence case and output labels match the inputs. Every input has help text. Module keys, field keys and the connection are unchanged, so existing scenarios keep working, and existing modules keep the values they were saved with.
+- Changes for Make's app review. **Search extraction jobs** no longer has the **URL** filter, because the API dropped it on purpose and answers 400 when it is set. A scenario that had the URL filter set now gets its jobs unfiltered, up to **Limit**, instead of a 400. Its pagination now uses Make's `{{pagination.page}}`. **Limit** fields on the two search modules default to 10 and use Make's standard help text. **Search website URLs** now leaves **Include subdomains** off by default, like the API. Labels are in sentence case and output labels match the inputs. Every input has help text. Module keys, field keys and the connection are unchanged, so existing scenarios keep working, and existing modules keep the values they were saved with.
 
-- Error messages read the API's `error.code` and `error.message`, which a failed **Extract a URL** returns, so Make no longer shows "Unknown error" for them. They now look like `[400] message (error code: CODE)`, as Make recommends.
+- Error messages read the API's `error.code` and `error.message`, which a failed **Extract a URL** returns, so Make no longer shows "Unknown error" for them. They now look like `[400] message (error code: CODE)`, as Make recommends. The error code part is left out when the API sends no code, for example for a 422 with only `detail` or a 502 that is not JSON.
 
-- An empty start or end date is no longer passed to `formatDate`.
+- An empty start or end date is no longer sent. Before, it went through `formatDate`, and a date mapped to an empty value could reach the API as `start_date=`, which it rejects with 422.
 
 - Outputs no longer list `retry_count` or the batch `data.links` field, because the API does not return them.
 

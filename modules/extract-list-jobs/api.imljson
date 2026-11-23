@@ -5,8 +5,8 @@
         "job_id": "{{parameters.job_id}}",
         "status": "{{parameters.status}}",
         "output": "{{parameters.output}}",
-        "start_date": "{{if(parameters.start_date, formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), parameters.start_date)}}",
-        "end_date": "{{if(parameters.end_date, formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), parameters.end_date)}}",
+        "start_date": "{{if(parameters.start_date, formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), undefined)}}",
+        "end_date": "{{if(parameters.end_date, formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), undefined)}}",
         "page_size": 100
     },
     "response": {
