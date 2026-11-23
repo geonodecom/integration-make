@@ -1,15 +1,17 @@
 [
-    { "name": "job_id", "type": "text", "label": "Job ID", "required": true },
+    { "name": "job_id", "type": "text", "label": "Job ID", "help": "The job ID returned by **Start a batch extraction** or **Start a batch (wait for completion)**.", "required": true },
     {
         "name": "page",
         "type": "uinteger",
-        "label": "Results Page",
+        "label": "Results page",
+        "help": "The page of item results to return, starting from `1`.",
         "default": 1
     },
     {
         "name": "page_size",
         "type": "uinteger",
-        "label": "Results Page Size",
+        "label": "Results page size",
+        "help": "The number of item results on each results page.",
         "default": 50
     }
 ]

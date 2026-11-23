@@ -1,12 +1,12 @@
 [
     { "name": "job_id", "type": "text", "label": "Job ID" },
     { "name": "status", "type": "text", "label": "Status" },
-    { "name": "created_at", "type": "date", "label": "Created At" },
-    { "name": "completed_at", "type": "date", "label": "Completed At" },
+    { "name": "created_at", "type": "date", "label": "Created at" },
+    { "name": "completed_at", "type": "date", "label": "Completed at" },
     {
         "name": "data",
         "type": "collection",
-        "label": "Extracted Data",
+        "label": "Extracted data",
         "spec": [
             { "name": "html", "type": "text", "label": "HTML" },
             { "name": "markdown", "type": "text", "label": "Markdown" }
@@ -18,20 +18,19 @@
         "label": "Metadata",
         "spec": [
             { "name": "url", "type": "url", "label": "URL" },
-            { "name": "render_js", "type": "boolean", "label": "Rendered with JS" },
-            { "name": "http_status", "type": "number", "label": "HTTP Status" },
+            { "name": "render_js", "type": "boolean", "label": "Render JavaScript" },
+            { "name": "http_status", "type": "number", "label": "HTTP status" },
             { "name": "duration_ms", "type": "number", "label": "Duration (ms)" },
-            { "name": "retry_count", "type": "number", "label": "Retry Count" },
-            { "name": "processing_mode", "type": "text", "label": "Processing Mode" },
-            { "name": "formats", "type": "array", "label": "Formats", "spec": { "type": "text" } },
+            { "name": "processing_mode", "type": "text", "label": "Processing mode" },
+            { "name": "formats", "type": "array", "label": "Output formats", "spec": { "type": "text" } },
             {
                 "name": "wait_config",
                 "type": "collection",
-                "label": "Wait Config",
+                "label": "Wait settings",
                 "spec": [
-                    { "name": "wait_until", "type": "text", "label": "Wait Until" },
-                    { "name": "wait_for", "type": "text", "label": "Wait For Selector" },
-                    { "name": "wait_timeout", "type": "number", "label": "Wait Timeout (ms)" }
+                    { "name": "wait_until", "type": "text", "label": "Wait until" },
+                    { "name": "wait_for", "type": "text", "label": "Wait for selector" },
+                    { "name": "wait_timeout", "type": "number", "label": "Wait timeout" }
                 ]
             }
         ]
@@ -39,12 +38,12 @@
     {
         "name": "error",
         "type": "collection",
-        "label": "Error (if failed)",
+        "label": "Error",
         "spec": [
             { "name": "code", "type": "text", "label": "Code" },
             { "name": "message", "type": "text", "label": "Message" },
             { "name": "retryable", "type": "boolean", "label": "Retryable" }
         ]
     },
-    { "name": "tokens_charged", "type": "number", "label": "Tokens Charged" }
+    { "name": "tokens_charged", "type": "number", "label": "Tokens charged" }
 ]

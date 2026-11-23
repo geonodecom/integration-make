@@ -1,11 +1,12 @@
 [
-    { "name": "url", "type": "url", "label": "Seed URL", "required": true },
-    { "name": "depth", "type": "uinteger", "label": "Depth", "default": 2 },
-    { "name": "limit", "type": "uinteger", "label": "Page Limit", "default": 50 },
+    { "name": "url", "type": "url", "label": "Seed URL", "help": "The page to start crawling from.", "required": true },
+    { "name": "depth", "type": "uinteger", "label": "Depth", "help": "How many levels of links to follow from the seed URL. `1` crawls only the seed URL.", "default": 2 },
+    { "name": "limit", "type": "uinteger", "label": "Page limit", "help": "The maximum number of pages to crawl.", "default": 50 },
     {
         "name": "formats",
         "type": "select",
-        "label": "Output Formats",
+        "label": "Output formats",
+        "help": "The formats to return the content in.",
         "multiple": true,
         "default": ["markdown"],
         "options": [
@@ -13,44 +14,46 @@
             { "label": "Markdown", "value": "markdown" }
         ]
     },
-    { "name": "render_js", "type": "boolean", "label": "Render JavaScript", "default": false },
+    { "name": "render_js", "type": "boolean", "label": "Render JavaScript", "help": "Loads pages in a browser before extracting them, for pages that need JavaScript. It is slower and uses more tokens.", "default": false },
     {
         "name": "wait_until",
         "type": "select",
-        "label": "Wait Until",
-        "help": "Browser lifecycle event to wait for before extracting each page. Any wait option auto-enables Render JavaScript.",
+        "label": "Wait until",
+        "help": "The page load event to wait for before extracting each page. Setting any wait option turns on **Render JavaScript**.",
         "options": [
             { "label": "Commit", "value": "commit" },
-            { "label": "DOM Content Loaded", "value": "domcontentloaded" },
+            { "label": "DOM content loaded", "value": "domcontentloaded" },
             { "label": "Load", "value": "load" },
-            { "label": "Network Idle", "value": "networkidle" }
+            { "label": "Network idle", "value": "networkidle" }
         ]
     },
     {
         "name": "wait_for",
         "type": "text",
-        "label": "Wait For Selector",
-        "help": "CSS selector or XPath to wait for before extracting each page's DOM. Auto-enables Render JavaScript."
+        "label": "Wait for selector",
+        "help": "A CSS selector or XPath to wait for before extracting each page. For example, `#content`. Setting any wait option turns on **Render JavaScript**."
     },
     {
         "name": "wait_timeout",
         "type": "uinteger",
-        "label": "Wait Timeout (ms)",
-        "help": "Exact post-ready delay in milliseconds (0–30000) before extracting each page's DOM. Auto-enables Render JavaScript.",
+        "label": "Wait timeout",
+        "help": "Extra time to wait after each page is ready, in milliseconds, from `0` to `30000`. Setting any wait option turns on **Render JavaScript**.",
         "validate": { "max": 30000 }
     },
-    { "name": "same_domain_only", "type": "boolean", "label": "Same Domain Only", "default": true },
-    { "name": "include_subdomains", "type": "boolean", "label": "Include Subdomains", "default": false },
+    { "name": "same_domain_only", "type": "boolean", "label": "Same domain only", "help": "Follows only links on the same domain as the seed URL.", "default": true },
+    { "name": "include_subdomains", "type": "boolean", "label": "Include subdomains", "help": "If **Same domain only** is on, also follows links to subdomains of the seed URL's domain.", "default": false },
     {
         "name": "proxy_country",
         "type": "text",
-        "label": "Proxy Country",
+        "label": "Proxy country",
+        "help": "A two-letter country code for the proxy, in capital letters. For example, `US` or `GB`. If left empty, the country is chosen from the target URL.",
         "validate": { "pattern": "^[A-Z]{2}$" }
     },
     {
         "name": "proxy_type",
         "type": "select",
-        "label": "Proxy Type",
+        "label": "Proxy type",
+        "help": "The type of proxy used to load pages.",
         "default": "residential",
         "options": [
             { "label": "Residential", "value": "residential" },
@@ -60,8 +63,8 @@
     {
         "name": "results_page_size",
         "type": "uinteger",
-        "label": "Results Page Size",
-        "help": "How many page results to include in the final response slice.",
+        "label": "Results page size",
+        "help": "The number of page results to return.",
         "default": 50
     }
 ]

@@ -1,8 +1,8 @@
-# Scraper API: Make.com Custom App
+# Geonode for Make.com
 
 [Integrations page](https://geonode.com/integrations/integration-make) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [GitHub source](https://github.com/geonodecom/integration-make) · [Repository overview](../README.md)
 
-Make.com (formerly Integromat) custom app for the Scraper API, built using the
+Make.com (formerly Integromat) custom app for the Geonode API, built using the
 Make Apps SDK (IMLJSON) format. Covers `/extract`, `/crawl`, `/batch`, `/map`,
 and `/statistics`. Webhook endpoints are intentionally excluded.
 
@@ -16,8 +16,8 @@ and `/statistics`. Webhook endpoints are intentionally excluded.
 2. Create an API key under **API Keys** in the [Geonode dashboard](https://app.geonode.com/).
 3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL**.
 4. Create an **API Key** connection and paste your Geonode key. The connection sends `X-Api-Key` and checks authenticated usage statistics.
-5. Enter `https://example.com` in **URL** and select **Markdown** in **Output Formats**. The module defaults to HTML, so select Markdown explicitly.
-6. Choose **Run once**. Inspect the output bundle: **Extracted Data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
+5. Enter `https://example.com` in **URL** and select **Markdown** in **Output formats**. The module defaults to HTML, so select Markdown explicitly.
+6. Choose **Run once**. Inspect the output bundle: **Extracted data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
 7. Add your destination module and map those fields. Run the complete scenario once before turning on its schedule.
 
 A successful connection test checks authentication; the extraction output confirms that the scenario actually retrieved a page. Keep the API key in the connection, not in scenario descriptions or exported examples.
@@ -26,7 +26,7 @@ A successful connection test checks authentication; the extraction output confir
 
 Use a URL from your scenario → **Extract a URL** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
 
-The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled or live-tested scenario blueprints.
+The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled scenario blueprints.
 
 ## All 16 Make modules
 
@@ -62,15 +62,13 @@ For longer jobs, save the returned job ID and use separate start/status steps wi
 
 **Why can't I find Geonode in Make?** It is a private app. Confirm that you accepted the supplied access for the correct organization and zone; a Geonode account alone does not install it in Make.
 
-**Why is Markdown empty?** Explicitly select Markdown in Output Formats, inspect the source URL and status, and confirm that an asynchronous job has completed before mapping content. Enable rendering when the page depends on JavaScript.
+**Why is Markdown empty?** Explicitly select Markdown in Output formats, inspect the source URL and status, and confirm that an asynchronous job has completed before mapping content. Enable rendering when the page depends on JavaScript.
 
 **Can this monitor prices or extract product fields?** It retrieves page content. Add your own parsing or AI step to turn that content into product fields, and a storage/comparison step to detect changes. This connector does not promise a ready-made product schema or change detector.
 
 **Is this an MCP connector?** This repository provides native Make scenario modules. For an AI assistant that uses the Model Context Protocol, use the separate [Geonode MCP server](https://docs.geonode.com/docs/scraper-api/guides/mcp/00_overview).
 
 **Does it include web search or webhook triggers?** Those modules are not defined in this Make source. Use the listed modules or evaluate a separate Geonode API or workflow integration for those needs.
-
-The module names and fields above were reviewed against this repository's source. Live Make scenario execution and parity with the app deployed in your account have not been verified in this review.
 
 ## Layout
 
@@ -85,11 +83,11 @@ The module names and fields above were reviewed against this repository's source
       common.imljson              shared data exposed to modules
       api.imljson                 connection test request (calls GET /statistics)
   modules/
-    extract-url/                  POST /extract (sync) — returns the result inline
-    extract-url-async/            POST /extract (async) — returns job_id
+    extract-url/                  POST /extract (sync), returns the result inline
+    extract-url-async/            POST /extract (async), returns job_id
     extract-wait/                 helper: async start + poll until done
     extract-get-job/              GET /extract/{job_id}
-    extract-list-jobs/            GET /extract/jobs (search — one bundle per job)
+    extract-list-jobs/            GET /extract/jobs (search, one bundle per job)
     crawl-start/                  POST /crawl
     crawl-get-status/             GET /crawl/{job_id}
     crawl-cancel/                 DELETE /crawl/{job_id}
@@ -98,7 +96,7 @@ The module names and fields above were reviewed against this repository's source
     batch-get-status/             GET /batch/{job_id}
     batch-cancel/                 DELETE /batch/{job_id}
     batch-wait/                   helper: start + poll until terminal state
-    map-urls/                     POST /map (search — one bundle per link)
+    map-urls/                     POST /map (search, one bundle per link)
     get-statistics/               GET /statistics
     make-api-call/                universal module: any path on https://scraper.geonode.io
 ```
@@ -115,11 +113,11 @@ Each module directory contains:
 
 ## Before publishing
 
-1. **Base URL** — `base.imljson` points at the production API,
+1. **Base URL**: `base.imljson` points at the production API,
    `https://scraper.geonode.io/v1`. If you want per-deployment overrides, add a
    `baseUrl` field to `connections/api-key/parameters.imljson` and switch
    `base.imljson` to read `{{connection.baseUrl}}`.
-2. **App version + logo** — `metadata.json` declares `version: 1`. Bump on each
+2. **App version + logo**: `metadata.json` declares `version: 1`. Bump on each
    publish. The publisher uploads `assets/make-logo.png` as the app logo: Make
    wants a square PNG of 512 to 2048 px, at most 500 kB. Make paints transparent
    areas in the theme colour and black areas white, so the logo is the Geonode
@@ -127,7 +125,7 @@ Each module directory contains:
 
 ## Authentication
 
-The connection collects a single field, **API Key** (stored as
+The connection collects a single field, **API key** (stored as
 `connection.apiKey`), and sends it as `X-Api-Key` on every request via
 `base.imljson`. The connection test (`connections/api-key/api.imljson`) hits
 `GET /statistics`, which is a cheap, authenticated read.
@@ -136,11 +134,11 @@ The connection collects a single field, **API Key** (stored as
 
 Two patterns are exposed for every async-style endpoint:
 
-- **Primitives** — `*-start`, `*-get-status`, `*-cancel`. The user composes the
+- **Primitives**: `*-start`, `*-get-status`, `*-cancel`. The user composes the
   poll loop themselves with native Make modules (Sleep, Repeater, router).
   Recommended for production scenarios because it returns control to Make
   between polls.
-- **`*-wait` helper** — single module that starts the job and then checks its
+- **`*-wait` helper**: a single module that starts the job and then checks its
   status with Make's `repeat` directive while the status is `queued` or
   `processing`. Returns the final result in one operation. Use it only for
   short jobs.
@@ -158,12 +156,12 @@ The `/extract` (sync + async), `/batch`, and `/crawl` modules expose three
 optional **wait** fields that map to the API's `wait_config` object, controlling
 how long the headless browser settles before the DOM is captured:
 
-- **Wait Until** (`wait_until`) — lifecycle event to wait for: `commit`,
+- **Wait until** (`wait_until`): the lifecycle event to wait for: `commit`,
   `domcontentloaded`, `load`, or `networkidle`.
-- **Wait For Selector** (`wait_for`) — a CSS selector or XPath expression to
+- **Wait for selector** (`wait_for`): a CSS selector or XPath expression to
   wait for before extracting.
-- **Wait Timeout (ms)** (`wait_timeout`) — an exact post-ready delay in
-  milliseconds (`0`–`30000`).
+- **Wait timeout** (`wait_timeout`): extra time to wait after the page is
+  ready, in milliseconds (`0` to `30000`).
 
 Notes on behaviour, mirroring the API contract:
 
@@ -187,7 +185,7 @@ Three workflows, in order of recommendation for ongoing maintenance:
 
 ### 1. `scripts/publish.py` (this repo)
 
-Bulk-pushes the whole local tree to Make via the SDK REST API. Idempotent —
+Bulk-pushes the whole local tree to Make via the SDK REST API. Idempotent:
 re-run any time to sync local edits up to Make. Uses only the Python
 standard library (no `pip install` needed); requires Python 3.10+.
 
@@ -239,7 +237,7 @@ python3 scripts/publish.py \
     --team-id 123456
 ```
 
-**Recommended first run** — dry-run with verbose to inspect what will be sent:
+**Recommended first run**: dry-run with verbose to inspect what will be sent:
 
 ```powershell
 python scripts/publish.py --token "your-token" --dry-run --verbose
@@ -272,10 +270,10 @@ What it does:
 Caveats:
 
 - Make's SDK REST endpoint shapes can vary between zone versions. If a step
-  fails the script prints the HTTP status and response body — adjust the
+  fails the script prints the HTTP status and response body. Adjust the
   endpoint in `publish.py` and re-run.
 - 409 (already exists) on create is treated as success.
-- The script never deletes anything on Make — if you remove a module locally,
+- The script never deletes anything on Make. If you remove a module locally,
   delete it manually in the Developer Hub.
 - Make's API is fronted by Cloudflare and returns **HTTP 403 / error 1010
   (`browser_signature_banned`)** to the default `Python-urllib/x.y` user
@@ -287,7 +285,7 @@ Caveats:
      script treats 403 the same as 404 on the initial GET, looks for the
      app in the app list, and stops with an error if it is not there. Pass
      the real name with `--app-name`.
-  2. The token belongs to a different team than the app — find your
+  2. The token belongs to a different team than the app. Find your
      team ID in any Make URL (`/team/{id}/...`) and pass `--team-id`.
   3. The token is missing scopes. Required: `apps:read`, `apps:write`,
      `app-development`.
@@ -306,7 +304,7 @@ Edit any file → save → auto-upload. After install:
 2. Reload window, click the Make icon in the Activity Bar.
 3. Open the app from the tree; files appear as temp files synced to Make.
 
-The extension is a remote editor — it does NOT push the local `./`
+The extension is a remote editor. It does not push the local `./`
 folder, it edits files stored on Make's servers. Use the `publish.py` script
 above for "push local folder up" semantics.
 
@@ -328,22 +326,24 @@ inspecting what's currently deployed.
 
 Before publishing, verify in a Make scenario:
 
-- [ ] Create connection — succeeds, fails clearly with bad key (401).
-- [ ] `Extract a URL` — happy path on `https://example.com`.
+- [ ] Create connection: succeeds, fails clearly with bad key (401).
+- [ ] `Extract a URL`: happy path on `https://example.com`.
 - [ ] `Start an extraction job` → `Get an extraction job` chain.
-- [ ] `Extract a URL (wait for completion)` — finishes within about 20 seconds, or returns the running status.
-- [ ] `Search extraction jobs` — pagination iterates all pages; date filters work.
+- [ ] `Extract a URL (wait for completion)`: finishes within about 20 seconds, or returns the running status.
+- [ ] `Search extraction jobs`: pagination iterates all pages (needs more than
+      100 jobs); date filters work, and empty dates send nothing.
 - [ ] `Start a crawl` → `Get a crawl` → `Cancel a crawl` lifecycle.
 - [ ] `Start a batch extraction` → `Get a batch` lifecycle.
-- [ ] `Search website URLs` — emits a bundle per discovered link.
-- [ ] `Get usage statistics` — date range filter works.
-- [ ] `Make an API call` — `GET /v1/statistics` returns status 200 with a body.
+- [ ] `Search website URLs`: emits a bundle per discovered link.
+- [ ] `Get usage statistics`: date range filter works.
+- [ ] `Make an API call`: `GET /v1/statistics` returns status 200 with a body.
+- [ ] A failed `Extract a URL` shows the API's message, not "Unknown error".
 - [ ] A 401 / 402 / 422 / 429 from the API maps to the right Make error type
       (see `base.imljson::response.error.type`).
 
 ## What is intentionally not included
 
-- **Webhooks (`/v1/webhooks/*`)** — out of scope for this pass.
-- **Health endpoint** — internal-only, no scenario value.
-- **Job-result download endpoints / signed URLs** — none exist on the API
-  surface today; add when the API does.
+- **Webhooks (`/v1/webhooks/*`)**: out of scope for this pass.
+- **Health endpoint**: internal-only, no scenario value.
+- **Batch result download (`GET /v1/batch/{job_id}/download`)**: no module
+  yet. Call it with **Make an API call**.

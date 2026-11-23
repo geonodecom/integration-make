@@ -52,7 +52,7 @@ import zlib
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEFAULT_ZONE = "https://eu1.make.com"
-DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; scraper-api-sdks/publish.py)"
+DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; geonode-integration-make/publish.py)"
 PREVIEW_LIMIT = 1500
 LOGO_PATH = REPO_ROOT / "assets" / "make-logo.png"
 PNG_SIGNATURE = bytes.fromhex("89504e470d0a1a0a")

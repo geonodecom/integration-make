@@ -2,7 +2,7 @@
     "name": "scraper-api",
     "label": "Geonode",
     "version": 1,
-    "description": "Extract clean HTML/markdown, crawl entire sites, batch-process URLs, discover sitemaps, and inspect usage statistics from the Scraper API.",
+    "description": "Give your Make.com agents and scenarios web content for research and automation. Extract pages, crawl sites, discover URLs and run batches, then pass results to AI, spreadsheet or CRM modules for summaries and record updates.",
     "language": "en",
     "countries": null,
     "private": true,

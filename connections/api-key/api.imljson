@@ -11,7 +11,7 @@
                 "401": "InvalidAccessTokenError",
                 "403": "InvalidAccessTokenError"
             },
-            "message": "[{{statusCode}}] {{ifempty(body.code, 'ERROR')}}: {{ifempty(body.message, 'Invalid API key')}}"
+            "message": "[{{statusCode}}] {{ifempty(body.message, 'Invalid API key')}} (error code: {{ifempty(body.code, 'ERROR')}})"
         },
         "data": {
             "apiKey": "{{parameters.apiKey}}"

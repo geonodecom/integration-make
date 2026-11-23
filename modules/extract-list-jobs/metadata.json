@@ -1,6 +1,6 @@
 {
     "label": "Search extraction jobs",
-    "description": "Returns a list of extraction jobs filtered by job ID, URL, status, output format or creation date. Each job is a separate bundle.",
+    "description": "Returns a list of extraction jobs filtered by job ID, status, output format or creation date. Each job is a separate bundle.",
     "typeId": 9,
     "connection": "api-key"
 }

@@ -3,26 +3,21 @@
     "method": "GET",
     "qs": {
         "job_id": "{{parameters.job_id}}",
-        "url": "{{parameters.url}}",
         "status": "{{parameters.status}}",
         "output": "{{parameters.output}}",
-        "start_date": "{{formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}",
-        "end_date": "{{formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}",
-        "page": "{{ifempty(temp.next_page, 1)}}",
+        "start_date": "{{if(parameters.start_date, formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), parameters.start_date)}}",
+        "end_date": "{{if(parameters.end_date, formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), parameters.end_date)}}",
         "page_size": 100
     },
     "response": {
         "iterate": "{{body.jobs}}",
         "limit": "{{parameters.limit}}",
-        "output": "{{item}}",
-        "temp": {
-            "next_page": "{{if(body.page < body.page_count, body.page + 1, null)}}"
-        }
+        "output": "{{item}}"
     },
     "pagination": {
-        "condition": "{{temp.next_page !== null}}",
         "qs": {
-            "page": "{{temp.next_page}}"
-        }
+            "page": "{{pagination.page}}"
+        },
+        "condition": "{{body.page < body.page_count}}"
     }
 }

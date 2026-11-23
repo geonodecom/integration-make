@@ -26,6 +26,9 @@ jobs:
       - name: Check the publish safety rules
         run: python scripts/test_publish_safety.py
 
+      - name: Check the Make review rules
+        run: python scripts/test_review_rules.py
+
       - name: Check that every app file is valid JSON
         run: |
           python - <<'PY'

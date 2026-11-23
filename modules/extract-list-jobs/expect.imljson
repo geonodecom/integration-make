@@ -1,10 +1,10 @@
 [
-    { "name": "job_id", "type": "text", "label": "Filter: Job ID" },
-    { "name": "url", "type": "url", "label": "Filter: URL" },
+    { "name": "job_id", "type": "text", "label": "Job ID", "help": "Returns only the job with this full job ID." },
     {
         "name": "status",
         "type": "select",
-        "label": "Filter: Status",
+        "label": "Status",
+        "help": "Returns only jobs with this status.",
         "options": [
             { "label": "Queued", "value": "queued" },
             { "label": "Processing", "value": "processing" },
@@ -16,19 +16,20 @@
     {
         "name": "output",
         "type": "select",
-        "label": "Filter: Output Format",
+        "label": "Output format",
+        "help": "Returns only jobs that asked for this output format.",
         "options": [
             { "label": "HTML", "value": "html" },
             { "label": "Markdown", "value": "markdown" }
         ]
     },
-    { "name": "start_date", "type": "date", "label": "Filter: Start Date" },
-    { "name": "end_date", "type": "date", "label": "Filter: End Date" },
+    { "name": "start_date", "type": "date", "label": "Start date", "help": "Returns only jobs created on or after this date." },
+    { "name": "end_date", "type": "date", "label": "End date", "help": "Returns only jobs created on or before this date." },
     {
         "name": "limit",
         "type": "uinteger",
-        "label": "Max Results",
-        "help": "Maximum number of jobs to return across pages. Page size is fixed to 100.",
-        "default": 100
+        "label": "Limit",
+        "help": "Maximum number of results to return and work with during one execution cycle. For information about setting limits, see [our Help Center](https://help.make.com/types-of-modules#b3ZEQ).",
+        "default": 10
     }
 ]

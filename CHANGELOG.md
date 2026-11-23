@@ -4,6 +4,18 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- Changes for Make's app review. **Search extraction jobs** no longer has the **URL** filter, because the API dropped it on purpose and answers 400 when it is set. Its pagination now uses Make's `{{pagination.page}}`. **Limit** fields on the two search modules default to 10 and use Make's standard help text. **Search website URLs** now leaves **Include subdomains** off by default, like the API. Labels are in sentence case and output labels match the inputs. Every input has help text. Module keys, field keys and the connection are unchanged, so existing scenarios keep working, and existing modules keep the values they were saved with.
+
+- Error messages read the API's `error.code` and `error.message`, which a failed **Extract a URL** returns, so Make no longer shows "Unknown error" for them. They now look like `[400] message (error code: CODE)`, as Make recommends.
+
+- An empty start or end date is no longer passed to `formatDate`.
+
+- Outputs no longer list `retry_count` or the batch `data.links` field, because the API does not return them.
+
+- The connection's API key field is labelled "API key" and links to the Geonode dashboard. The app description uses the approved Make copy.
+
+- README and guide: the sign-up link is `/signup`, the guide is titled "Geonode for Make.com", and the note on download endpoints is up to date.
+
 - Error messages show the API's validation message. A 422 for a bad input comes back as `{"detail": [{"msg": ...}]}` without `code` or `message`, so Make used to show "[422] ERROR: Unknown error". Now it shows the first `detail` message, or `detail` itself when it is a plain string.
 
 - The publisher uploads the app logo (`assets/make-logo.png`, the Geonode mark) and prints the app's review state on every run, dry runs included.
