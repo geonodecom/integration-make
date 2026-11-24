@@ -4,10 +4,10 @@
     {
         "name": "batch_config",
         "type": "collection",
-        "label": "Batch Config",
+        "label": "Batch settings",
         "spec": [
-            { "name": "render_js", "type": "boolean", "label": "Rendered with JS" },
-            { "name": "formats", "type": "array", "label": "Formats", "spec": { "type": "text" } },
+            { "name": "render_js", "type": "boolean", "label": "Render JavaScript" },
+            { "name": "formats", "type": "array", "label": "Output formats", "spec": { "type": "text" } },
             {
                 "name": "proxy",
                 "type": "collection",
@@ -20,11 +20,11 @@
             {
                 "name": "wait_config",
                 "type": "collection",
-                "label": "Wait Config",
+                "label": "Wait settings",
                 "spec": [
-                    { "name": "wait_until", "type": "text", "label": "Wait Until" },
-                    { "name": "wait_for", "type": "text", "label": "Wait For Selector" },
-                    { "name": "wait_timeout", "type": "number", "label": "Wait Timeout (ms)" }
+                    { "name": "wait_until", "type": "text", "label": "Wait until" },
+                    { "name": "wait_for", "type": "text", "label": "Wait for selector" },
+                    { "name": "wait_timeout", "type": "number", "label": "Wait timeout" }
                 ]
             }
         ]
@@ -32,10 +32,10 @@
     {
         "name": "token_summary",
         "type": "collection",
-        "label": "Token Summary",
+        "label": "Token summary",
         "spec": [
-            { "name": "tokens_charged_total", "type": "number", "label": "Tokens Charged Total" },
-            { "name": "tokens_reserved", "type": "number", "label": "Tokens Reserved" }
+            { "name": "tokens_charged_total", "type": "number", "label": "Total tokens charged" },
+            { "name": "tokens_reserved", "type": "number", "label": "Tokens reserved" }
         ]
     },
     { "name": "total_urls", "type": "number", "label": "Total URLs" },
@@ -44,28 +44,27 @@
     { "name": "cancelled_urls", "type": "number", "label": "Cancelled URLs" },
     { "name": "pending_urls", "type": "number", "label": "Pending URLs" },
     { "name": "invalid_urls", "type": "array", "label": "Invalid URLs", "spec": { "type": "text" } },
-    { "name": "created_at", "type": "date", "label": "Created At" },
-    { "name": "completed_at", "type": "date", "label": "Completed At" },
+    { "name": "created_at", "type": "date", "label": "Created at" },
+    { "name": "completed_at", "type": "date", "label": "Completed at" },
     {
         "name": "results",
         "type": "array",
-        "label": "Item Results (slice)",
+        "label": "Item results",
         "spec": {
             "type": "collection",
             "spec": [
-                { "name": "input_index", "type": "number", "label": "Input Index" },
+                { "name": "input_index", "type": "number", "label": "Input index" },
                 { "name": "url", "type": "url", "label": "URL" },
                 { "name": "status", "type": "text", "label": "Status" },
-                { "name": "error_code", "type": "text", "label": "Error Code" },
-                { "name": "error_message", "type": "text", "label": "Error Message" },
+                { "name": "error_code", "type": "text", "label": "Error code" },
+                { "name": "error_message", "type": "text", "label": "Error message" },
                 {
                     "name": "data",
                     "type": "collection",
                     "label": "Data",
                     "spec": [
                         { "name": "html", "type": "text", "label": "HTML" },
-                        { "name": "markdown", "type": "text", "label": "Markdown" },
-                        { "name": "links", "type": "array", "label": "Links", "spec": { "type": "url" } }
+                        { "name": "markdown", "type": "text", "label": "Markdown" }
                     ]
                 },
                 {
@@ -73,10 +72,9 @@
                     "type": "collection",
                     "label": "Metadata",
                     "spec": [
-                        { "name": "http_status", "type": "number", "label": "HTTP Status" },
+                        { "name": "http_status", "type": "number", "label": "HTTP status" },
                         { "name": "duration_ms", "type": "number", "label": "Duration (ms)" },
-                        { "name": "retry_count", "type": "number", "label": "Retry Count" },
-                        { "name": "tokens_charged", "type": "number", "label": "Tokens Charged" }
+                        { "name": "tokens_charged", "type": "number", "label": "Tokens charged" }
                     ]
                 }
             ]

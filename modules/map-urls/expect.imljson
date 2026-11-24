@@ -3,34 +3,34 @@
         "name": "url",
         "type": "url",
         "label": "Base URL",
-        "help": "Base URL to discover links from.",
+        "help": "The website to find URLs on. Only URLs on this host, and under its path if it has one, are returned unless **Include subdomains** is on.",
         "required": true
     },
     {
         "name": "search",
         "type": "text",
-        "label": "Substring Filter",
-        "help": "Case-insensitive substring filter applied to discovered URLs. Does NOT query a search engine."
+        "label": "Search term",
+        "help": "Returns only URLs that contain this text, ignoring case. This filters the URLs found on the website and does not run a web search."
     },
     {
         "name": "include_subdomains",
         "type": "boolean",
-        "label": "Include Subdomains",
-        "help": "Probe common sibling subdomains (docs, blog, help, support) for their own sitemaps.",
-        "default": true
+        "label": "Include subdomains",
+        "help": "Also returns URLs on other subdomains of the same domain, and checks common subdomains, such as docs, blog, help and support, for their own sitemaps. This can return many more URLs.",
+        "default": false
     },
     {
         "name": "ignore_query_parameters",
         "type": "boolean",
-        "label": "Ignore Query Parameters",
-        "help": "Strip query parameters when normalizing discovered URLs.",
+        "label": "Ignore query parameters",
+        "help": "Removes query parameters from the URLs found.",
         "default": true
     },
     {
         "name": "limit",
         "type": "uinteger",
-        "label": "Max Results",
-        "help": "Maximum number of discovered links to emit.",
-        "default": 1000
+        "label": "Limit",
+        "help": "Maximum number of results to return and work with during one execution cycle. For information about setting limits, see [our Help Center](https://help.make.com/types-of-modules#b3ZEQ).",
+        "default": 10
     }
 ]

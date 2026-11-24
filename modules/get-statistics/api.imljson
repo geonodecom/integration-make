@@ -2,8 +2,8 @@
     "url": "/statistics",
     "method": "GET",
     "qs": {
-        "start_date": "{{formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}",
-        "end_date": "{{formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC')}}"
+        "start_date": "{{if(parameters.start_date, formatDate(parameters.start_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), undefined)}}",
+        "end_date": "{{if(parameters.end_date, formatDate(parameters.end_date, 'YYYY-MM-DDTHH:mm:ssZ', 'UTC'), undefined)}}"
     },
     "response": {
         "output": "{{body}}"

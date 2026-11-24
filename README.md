@@ -4,7 +4,7 @@
 
 Give your Make.com agents and scenarios web content for research and automation. Extract pages, crawl sites, discover URLs and run batches, then pass results to AI, spreadsheet or CRM modules for summaries and record updates.
 
-**[Try Geonode for free](https://app.geonode.com/sign-up)**
+**[Try Geonode for free](https://app.geonode.com/signup)**
 
 [Integrations page](https://geonode.com/integrations/integration-make) · [Geonode API docs](https://docs.geonode.com/docs/scraper-api) · [View source on GitHub](https://github.com/geonodecom/integration-make) · [Complete guide](docs/guide.md)
 
@@ -26,8 +26,8 @@ Give your Make.com agents and scenarios web content for research and automation.
 2. Create an API key under **API Keys** in the [Geonode dashboard](https://app.geonode.com/).
 3. Create a scenario, add the Geonode app supplied through the invitation, and choose **Extract a URL**.
 4. Create an **API Key** connection and paste your Geonode key. The connection sends `X-Api-Key` and checks authenticated usage statistics.
-5. Enter `https://example.com` in **URL** and select **Markdown** in **Output Formats**. The module defaults to HTML, so select Markdown explicitly.
-6. Choose **Run once**. Inspect the output bundle: **Extracted Data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
+5. Enter `https://example.com` in **URL** and select **Markdown** in **Output formats**. The module defaults to HTML, so select Markdown explicitly.
+6. Choose **Run once**. Inspect the output bundle: **Extracted data → Markdown** (`data.markdown`) should contain page text and **Metadata → URL** (`metadata.url`) should identify the source.
 7. Add your destination module and map those fields. Run the complete scenario once before turning on its schedule.
 
 A successful connection test checks authentication; the extraction output confirms that the scenario actually retrieved a page. Keep the API key in the connection, not in scenario descriptions or exported examples.
@@ -36,7 +36,7 @@ A successful connection test checks authentication; the extraction output confir
 
 Use a URL from your scenario → **Extract a URL** → **Google Sheets: Add a Row**. Create columns named `Source URL`, `Content`, and `Usage`, then map `metadata.url`, `data.markdown`, and `tokens_charged` into them.
 
-The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled or live-tested scenario blueprints.
+The Geonode module retrieves content. Google Sheets is a separate Make module with its own connection. For an AI summary, insert your chosen AI module between extraction and Sheets, and pass it the Markdown plus source URL. These are workflow recipes, not preinstalled scenario blueprints.
 
 ## All 16 Make modules
 
@@ -72,15 +72,13 @@ For longer jobs, save the returned job ID and use separate start/status steps wi
 
 **Why can't I find Geonode in Make?** It is a private app. Confirm that you accepted the supplied access for the correct organization and zone; a Geonode account alone does not install it in Make.
 
-**Why is Markdown empty?** Explicitly select Markdown in Output Formats, inspect the source URL and status, and confirm that an asynchronous job has completed before mapping content. Enable rendering when the page depends on JavaScript.
+**Why is Markdown empty?** Explicitly select Markdown in Output formats, inspect the source URL and status, and confirm that an asynchronous job has completed before mapping content. Enable rendering when the page depends on JavaScript.
 
 **Can this monitor prices or extract product fields?** It retrieves page content. Add your own parsing or AI step to turn that content into product fields, and a storage/comparison step to detect changes. This connector does not promise a ready-made product schema or change detector.
 
 **Is this an MCP connector?** This repository provides native Make scenario modules. For an AI assistant that uses the Model Context Protocol, use the separate [Geonode MCP server](https://docs.geonode.com/docs/scraper-api/guides/mcp/00_overview).
 
 **Does it include web search or webhook triggers?** Those modules are not defined in this Make source. Use the listed modules or evaluate a separate Geonode API or workflow integration for those needs.
-
-The module names and fields above were reviewed against this repository's source. Live Make scenario execution and parity with the app deployed in your account have not been verified in this review.
 
 ## Develop locally
 
@@ -89,6 +87,7 @@ Requires Python 3.10 or newer. The source uses JSON and IMLJSON; no dependency i
 ```sh
 python3 scripts/test_client_header.py
 python3 scripts/test_publish_safety.py
+python3 scripts/test_review_rules.py
 ```
 
 Edit shared request behavior in `base.imljson`, connection fields in `connections/api-key/`, and operation definitions in `modules/`. Each module declares metadata, input fields, request mapping, output fields and samples. The [full guide](docs/guide.md) describes the format and live scenario checks.
@@ -103,4 +102,4 @@ Connection and module keys and template metadata are kept stable. The `Publish` 
 
 MIT licensed. See [LICENSE](LICENSE).
 
-**[Try Geonode for free](https://app.geonode.com/sign-up)**
+**[Try Geonode for free](https://app.geonode.com/signup)**

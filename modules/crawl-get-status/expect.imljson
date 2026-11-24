@@ -1,17 +1,17 @@
 [
-    { "name": "job_id", "type": "text", "label": "Job ID", "required": true },
+    { "name": "job_id", "type": "text", "label": "Job ID", "help": "The job ID returned by **Start a crawl** or **Start a crawl (wait for completion)**.", "required": true },
     {
         "name": "page",
         "type": "uinteger",
-        "label": "Results Page",
-        "help": "Page number for the slice of crawl page results to return.",
+        "label": "Results page",
+        "help": "The page of crawl results to return, starting from `1`.",
         "default": 1
     },
     {
         "name": "page_size",
         "type": "uinteger",
-        "label": "Results Page Size",
-        "help": "Number of crawled page results to return in this slice.",
+        "label": "Results page size",
+        "help": "The number of page results on each results page.",
         "default": 50
     }
 ]

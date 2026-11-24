@@ -1,4 +1,4 @@
 [
     { "name": "url", "type": "url", "label": "URL" },
-    { "name": "source", "type": "text", "label": "Discovery Source" }
+    { "name": "source", "type": "text", "label": "Discovery source" }
 ]

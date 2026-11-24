@@ -9,7 +9,6 @@
         "render_js": true,
         "http_status": 200,
         "duration_ms": 842,
-        "retry_count": 0,
         "processing_mode": "async",
         "formats": ["html"],
         "wait_config": { "wait_until": "networkidle", "wait_for": ".product-price", "wait_timeout": 500 }

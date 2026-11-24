@@ -2,8 +2,8 @@
     {
         "name": "apiKey",
         "type": "password",
-        "label": "API Key",
-        "help": "Your Scraper API key. Sent as the `X-Api-Key` header on every request.",
+        "label": "API key",
+        "help": "For details on how to obtain your API key, see the API Keys page in the [Geonode dashboard](https://app.geonode.com/).",
         "required": true
     }
 ]

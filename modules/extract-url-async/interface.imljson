@@ -2,5 +2,5 @@
     { "name": "job_id", "type": "text", "label": "Job ID" },
     { "name": "status", "type": "text", "label": "Status" },
     { "name": "status_url", "type": "text", "label": "Status URL" },
-    { "name": "estimated_tokens", "type": "number", "label": "Estimated Tokens" }
+    { "name": "estimated_tokens", "type": "number", "label": "Estimated tokens" }
 ]

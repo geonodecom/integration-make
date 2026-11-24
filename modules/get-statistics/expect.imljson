@@ -2,13 +2,13 @@
     {
         "name": "start_date",
         "type": "date",
-        "label": "Start Date",
-        "help": "Filter by start date. Defaults to 30 days ago when omitted."
+        "label": "Start date",
+        "help": "The start of the period. If left empty, 30 days ago is used."
     },
     {
         "name": "end_date",
         "type": "date",
-        "label": "End Date",
-        "help": "Filter by end date. Defaults to now when omitted."
+        "label": "End date",
+        "help": "The end of the period. If left empty, the current time is used."
     }
 ]

@@ -9,6 +9,7 @@ Run from the repository root:
 ```sh
 python3 scripts/test_client_header.py
 python3 scripts/test_publish_safety.py
+python3 scripts/test_review_rules.py
 ```
 
 Keep existing package names, node/credential identifiers, module keys, and connection fields compatible. Add or update focused tests when behavior changes. Document user-facing changes in `CHANGELOG.md`. Live platform tests need a separate test account and explicit release coordination; passing local checks is not a live integration test.

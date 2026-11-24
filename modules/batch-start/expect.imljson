@@ -3,21 +3,22 @@
         "name": "urls",
         "type": "array",
         "label": "URLs",
-        "help": "List of URLs to extract in one batch.",
+        "help": "The URLs to extract in one batch.",
         "required": true,
         "spec": { "type": "url" }
     },
     {
         "name": "ignore_invalid_urls",
         "type": "boolean",
-        "label": "Ignore Invalid URLs",
-        "help": "If enabled, invalid URLs are skipped and returned in `invalid_urls` instead of failing the request.",
+        "label": "Ignore invalid URLs",
+        "help": "If on, invalid URLs are skipped and listed in **Invalid URLs**. If off, the request fails when any URL is invalid.",
         "default": true
     },
     {
         "name": "formats",
         "type": "select",
-        "label": "Output Formats",
+        "label": "Output formats",
+        "help": "The formats to return the content in.",
         "multiple": true,
         "default": ["markdown"],
         "options": [
@@ -25,43 +26,44 @@
             { "label": "Markdown", "value": "markdown" }
         ]
     },
-    { "name": "render_js", "type": "boolean", "label": "Render JavaScript", "default": false },
+    { "name": "render_js", "type": "boolean", "label": "Render JavaScript", "help": "Loads pages in a browser before extracting them, for pages that need JavaScript. It is slower and uses more tokens.", "default": false },
     {
         "name": "wait_until",
         "type": "select",
-        "label": "Wait Until",
-        "help": "Browser lifecycle event to wait for before extracting each item. Any wait option auto-enables Render JavaScript.",
+        "label": "Wait until",
+        "help": "The page load event to wait for before extracting each URL. Setting any wait option turns on **Render JavaScript**.",
         "options": [
             { "label": "Commit", "value": "commit" },
-            { "label": "DOM Content Loaded", "value": "domcontentloaded" },
+            { "label": "DOM content loaded", "value": "domcontentloaded" },
             { "label": "Load", "value": "load" },
-            { "label": "Network Idle", "value": "networkidle" }
+            { "label": "Network idle", "value": "networkidle" }
         ]
     },
     {
         "name": "wait_for",
         "type": "text",
-        "label": "Wait For Selector",
-        "help": "CSS selector or XPath to wait for before extracting each item's DOM. Auto-enables Render JavaScript."
+        "label": "Wait for selector",
+        "help": "A CSS selector or XPath to wait for before extracting each URL. For example, `#content`. Setting any wait option turns on **Render JavaScript**."
     },
     {
         "name": "wait_timeout",
         "type": "uinteger",
-        "label": "Wait Timeout (ms)",
-        "help": "Exact post-ready delay in milliseconds (0–30000) before extracting each item's DOM. Auto-enables Render JavaScript.",
+        "label": "Wait timeout",
+        "help": "Extra time to wait after each URL's page is ready, in milliseconds, from `0` to `30000`. Setting any wait option turns on **Render JavaScript**.",
         "validate": { "max": 30000 }
     },
     {
         "name": "proxy_country",
         "type": "text",
-        "label": "Proxy Country",
-        "help": "ISO 3166-1 alpha-2 country code (e.g., US, GB).",
+        "label": "Proxy country",
+        "help": "A two-letter country code for the proxy, in capital letters. For example, `US` or `GB`. If left empty, the country is chosen from the target URL.",
         "validate": { "pattern": "^[A-Z]{2}$" }
     },
     {
         "name": "proxy_type",
         "type": "select",
-        "label": "Proxy Type",
+        "label": "Proxy type",
+        "help": "The type of proxy used to load pages.",
         "default": "residential",
         "options": [
             { "label": "Residential", "value": "residential" },
@@ -71,7 +73,8 @@
     {
         "name": "headers",
         "type": "array",
-        "label": "Custom HTTP Headers",
+        "label": "Custom HTTP headers",
+        "help": "HTTP headers to send to the target website.",
         "spec": [
             { "name": "key", "type": "text", "label": "Name", "required": true },
             { "name": "value", "type": "text", "label": "Value", "required": true }

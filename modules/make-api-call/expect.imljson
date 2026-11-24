@@ -10,6 +10,7 @@
         "name": "method",
         "type": "select",
         "label": "Method",
+        "help": "The HTTP method of the request.",
         "default": "GET",
         "options": [
             { "label": "GET", "value": "GET" },
@@ -40,11 +41,13 @@
             { "name": "value", "type": "text", "label": "Value" }
         ],
         "type": "array",
-        "label": "Query String"
+        "label": "Query String",
+        "help": "Query parameters to add to the request."
     },
     {
         "name": "body",
         "type": "any",
-        "label": "Body"
+        "label": "Body",
+        "help": "The request body, usually JSON."
     }
 ]

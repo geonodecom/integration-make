@@ -5,12 +5,12 @@
     {
         "name": "crawl_config",
         "type": "collection",
-        "label": "Crawl Config",
+        "label": "Crawl settings",
         "spec": [
-            { "name": "render_js", "type": "boolean", "label": "Rendered with JS" },
-            { "name": "formats", "type": "array", "label": "Formats", "spec": { "type": "text" } },
-            { "name": "same_domain_only", "type": "boolean", "label": "Same Domain Only" },
-            { "name": "include_subdomains", "type": "boolean", "label": "Include Subdomains" },
+            { "name": "render_js", "type": "boolean", "label": "Render JavaScript" },
+            { "name": "formats", "type": "array", "label": "Output formats", "spec": { "type": "text" } },
+            { "name": "same_domain_only", "type": "boolean", "label": "Same domain only" },
+            { "name": "include_subdomains", "type": "boolean", "label": "Include subdomains" },
             {
                 "name": "proxy",
                 "type": "collection",
@@ -23,11 +23,11 @@
             {
                 "name": "wait_config",
                 "type": "collection",
-                "label": "Wait Config",
+                "label": "Wait settings",
                 "spec": [
-                    { "name": "wait_until", "type": "text", "label": "Wait Until" },
-                    { "name": "wait_for", "type": "text", "label": "Wait For Selector" },
-                    { "name": "wait_timeout", "type": "number", "label": "Wait Timeout (ms)" }
+                    { "name": "wait_until", "type": "text", "label": "Wait until" },
+                    { "name": "wait_for", "type": "text", "label": "Wait for selector" },
+                    { "name": "wait_timeout", "type": "number", "label": "Wait timeout" }
                 ]
             }
         ]
@@ -35,22 +35,22 @@
     {
         "name": "token_summary",
         "type": "collection",
-        "label": "Token Summary",
+        "label": "Token summary",
         "spec": [
-            { "name": "tokens_charged_total", "type": "number", "label": "Tokens Charged Total" },
-            { "name": "tokens_reserved", "type": "number", "label": "Tokens Reserved" }
+            { "name": "tokens_charged_total", "type": "number", "label": "Total tokens charged" },
+            { "name": "tokens_reserved", "type": "number", "label": "Tokens reserved" }
         ]
     },
-    { "name": "total_pages", "type": "number", "label": "Total Pages Discovered" },
-    { "name": "completed_pages", "type": "number", "label": "Completed Pages" },
-    { "name": "failed_pages", "type": "number", "label": "Failed Pages" },
-    { "name": "cancelled_pages", "type": "number", "label": "Cancelled Pages" },
-    { "name": "created_at", "type": "date", "label": "Created At" },
-    { "name": "completed_at", "type": "date", "label": "Completed At" },
+    { "name": "total_pages", "type": "number", "label": "Total pages" },
+    { "name": "completed_pages", "type": "number", "label": "Completed pages" },
+    { "name": "failed_pages", "type": "number", "label": "Failed pages" },
+    { "name": "cancelled_pages", "type": "number", "label": "Cancelled pages" },
+    { "name": "created_at", "type": "date", "label": "Created at" },
+    { "name": "completed_at", "type": "date", "label": "Completed at" },
     {
         "name": "results",
         "type": "array",
-        "label": "Page Results (slice)",
+        "label": "Page results",
         "spec": {
             "type": "collection",
             "spec": [
@@ -58,8 +58,8 @@
                 { "name": "parent_url", "type": "url", "label": "Parent URL" },
                 { "name": "depth", "type": "number", "label": "Depth" },
                 { "name": "status", "type": "text", "label": "Status" },
-                { "name": "error_code", "type": "text", "label": "Error Code" },
-                { "name": "error_message", "type": "text", "label": "Error Message" },
+                { "name": "error_code", "type": "text", "label": "Error code" },
+                { "name": "error_message", "type": "text", "label": "Error message" },
                 { "name": "links", "type": "array", "label": "Links", "spec": { "type": "url" } },
                 {
                     "name": "data",
@@ -75,10 +75,9 @@
                     "type": "collection",
                     "label": "Metadata",
                     "spec": [
-                        { "name": "http_status", "type": "number", "label": "HTTP Status" },
+                        { "name": "http_status", "type": "number", "label": "HTTP status" },
                         { "name": "duration_ms", "type": "number", "label": "Duration (ms)" },
-                        { "name": "retry_count", "type": "number", "label": "Retry Count" },
-                        { "name": "tokens_charged", "type": "number", "label": "Tokens Charged" }
+                        { "name": "tokens_charged", "type": "number", "label": "Tokens charged" }
                     ]
                 }
             ]

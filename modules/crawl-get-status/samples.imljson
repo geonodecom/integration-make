@@ -25,7 +25,7 @@
             "status": "completed",
             "links": ["https://example.com/team"],
             "data": { "markdown": "# About" },
-            "metadata": { "http_status": 200, "duration_ms": 712, "retry_count": 0, "tokens_charged": 1 }
+            "metadata": { "http_status": 200, "duration_ms": 712, "tokens_charged": 1 }
         }
     ]
 }
