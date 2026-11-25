@@ -7,22 +7,23 @@
     },
     "response": {
         "error": {
-            "type": {
-                "400": "DataError",
-                "401": "InvalidAccessTokenError",
-                "402": "DataError",
-                "403": "DataError",
-                "404": "DataError",
-                "408": "ConnectionError",
-                "409": "DataError",
-                "422": "DataError",
-                "429": "RateLimitError",
-                "500": "RuntimeError",
-                "502": "ConnectionError",
-                "503": "ConnectionError",
-                "504": "ConnectionError"
+            "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}",
+            "400": {
+                "type": "DataError",
+                "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}"
             },
-            "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}"
+            "401": {
+                "type": "InvalidAccessTokenError",
+                "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}"
+            },
+            "408": {
+                "type": "ConnectionError",
+                "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}"
+            },
+            "422": {
+                "type": "DataError",
+                "message": "[{{statusCode}}] {{ifempty(body.error.message, ifempty(body.message, ifempty(body.detail[1].msg, ifempty(body.detail, 'Unknown error'))))}}{{if(ifempty(body.error.code, body.code), ' (error code: ', '')}}{{ifempty(body.error.code, body.code)}}{{if(ifempty(body.error.code, body.code), ')', '')}}"
+            }
         }
     },
     "log": {

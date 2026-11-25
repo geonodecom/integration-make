@@ -97,6 +97,19 @@ class ReviewRulesTest(unittest.TestCase):
             self.assertIn(path, message)
         self.assertNotIn("'ERROR'", message)  # no made-up code when the API sends none
 
+    def test_error_types_are_set_per_status(self) -> None:
+        # Make wants `type` as one string; a type for one status goes under that status with its own message.
+        expected = {
+            "base.imljson": {"400": "DataError", "401": "InvalidAccessTokenError", "408": "ConnectionError", "422": "DataError"},
+            "connections/api-key/api.imljson": {"401": "InvalidAccessTokenError", "403": "InvalidAccessTokenError"},
+        }
+        for relative, types in expected.items():
+            error = load(APP_ROOT / relative)["response"]["error"]
+            self.assertNotIn("type", error, relative)
+            self.assertEqual({code: error[code]["type"] for code in types}, types, relative)
+            for code in types:
+                self.assertEqual(error[code]["message"], error["message"], f"{relative}: {code}")
+
     def test_api_key_is_sanitized(self) -> None:
         for relative in ("base.imljson", "connections/api-key/api.imljson"):
             self.assertIn("request.headers.x-api-key", load(APP_ROOT / relative)["log"]["sanitize"], relative)

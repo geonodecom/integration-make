@@ -341,8 +341,8 @@ Before publishing, verify in a Make scenario:
       mapped-empty dates send nothing.
 - [ ] `Make an API call`: `GET /v1/statistics` returns status 200 with a body.
 - [ ] A failed `Extract a URL` shows the API's message, not "Unknown error".
-- [ ] A 401 / 402 / 422 / 429 from the API maps to the right Make error type
-      (see `base.imljson::response.error.type`).
+- [ ] A 401 / 422 / 429 from the API maps to the right Make error type
+      (see the status entries under `base.imljson::response.error`).
 
 ## What is intentionally not included
 
