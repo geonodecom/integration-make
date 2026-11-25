@@ -4,6 +4,8 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- Error types are set the way Make reads them. `response.error.type` was a map of status codes, which Make does not accept (it wants one type), so Make used its defaults. Now each status has its own entry: 400 and 422 are `DataError`, 401 is `InvalidAccessTokenError` and 408 is `ConnectionError` in the app; 401 and 403 are `InvalidAccessTokenError` in the connection. Other statuses keep Make's defaults: `RuntimeError` for 4xx, `RateLimitError` for 429 and `ConnectionError` for 5xx. Messages are unchanged.
+
 - Changes for Make's app review. **Search extraction jobs** no longer has the **URL** filter, because the API dropped it on purpose and answers 400 when it is set. A scenario that had the URL filter set now gets its jobs unfiltered, up to **Limit**, instead of a 400. Its pagination now uses Make's `{{pagination.page}}`. **Limit** fields on the two search modules default to 10 and use Make's standard help text. **Search website URLs** now leaves **Include subdomains** off by default, like the API. Labels are in sentence case and output labels match the inputs. Every input has help text. Module keys, field keys and the connection are unchanged, so existing scenarios keep working, and existing modules keep the values they were saved with.
 
 - Error messages read the API's `error.code` and `error.message`, which a failed **Extract a URL** returns, so Make no longer shows "Unknown error" for them. They now look like `[400] message (error code: CODE)`, as Make recommends. The error code part is left out when the API sends no code, for example for a 422 with only `detail` or a 502 that is not JSON.

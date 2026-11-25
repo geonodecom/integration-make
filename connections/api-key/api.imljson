@@ -7,11 +7,15 @@
     },
     "response": {
         "error": {
-            "type": {
-                "401": "InvalidAccessTokenError",
-                "403": "InvalidAccessTokenError"
+            "message": "[{{statusCode}}] {{ifempty(body.message, 'Invalid API key')}}{{if(body.code, ' (error code: ', '')}}{{body.code}}{{if(body.code, ')', '')}}",
+            "401": {
+                "type": "InvalidAccessTokenError",
+                "message": "[{{statusCode}}] {{ifempty(body.message, 'Invalid API key')}}{{if(body.code, ' (error code: ', '')}}{{body.code}}{{if(body.code, ')', '')}}"
             },
-            "message": "[{{statusCode}}] {{ifempty(body.message, 'Invalid API key')}}{{if(body.code, ' (error code: ', '')}}{{body.code}}{{if(body.code, ')', '')}}"
+            "403": {
+                "type": "InvalidAccessTokenError",
+                "message": "[{{statusCode}}] {{ifempty(body.message, 'Invalid API key')}}{{if(body.code, ' (error code: ', '')}}{{body.code}}{{if(body.code, ')', '')}}"
+            }
         },
         "data": {
             "apiKey": "{{parameters.apiKey}}"
