@@ -4,6 +4,7 @@
         "type": "text",
         "label": "Job ID",
         "help": "The job ID returned by **Start an extraction job** or **Extract a URL (wait for completion)**.",
-        "required": true
+        "required": true,
+        "validate": { "pattern": "^[A-Za-z0-9_-]+$" }
     }
 ]

@@ -1,5 +1,5 @@
 [
-    { "name": "job_id", "type": "text", "label": "Job ID", "help": "The job ID returned by **Start a batch extraction** or **Start a batch (wait for completion)**.", "required": true },
+    { "name": "job_id", "type": "text", "label": "Job ID", "help": "The job ID returned by **Start a batch extraction** or **Start a batch (wait for completion)**.", "required": true, "validate": { "pattern": "^[A-Za-z0-9_-]+$" } },
     {
         "name": "page",
         "type": "uinteger",
