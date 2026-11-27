@@ -4,6 +4,8 @@ All notable changes to the Make app will be documented in this file. Make app ve
 
 ## Unreleased (app version 1)
 
+- **Job ID** in **Get a batch**, **Cancel a batch**, **Get a crawl**, **Cancel a crawl** and **Get an extraction job** accepts only letters, digits, `-` and `_`. The ID goes into the request path, so a value like `../statistics` used to reach another API route; for the cancel modules that was a DELETE. Make now rejects such a value before sending the request. Real job IDs are UUIDs and still pass.
+
 - Error types are set the way Make reads them. `response.error.type` was a map of status codes, which Make does not accept (it wants one type), so Make used its defaults. Now each status has its own entry: 400 and 422 are `DataError`, 401 is `InvalidAccessTokenError` and 408 is `ConnectionError` in the app; 401 and 403 are `InvalidAccessTokenError` in the connection. Other statuses keep Make's defaults: `RuntimeError` for 4xx, `RateLimitError` for 429 and `ConnectionError` for 5xx. Messages are unchanged.
 
 - Changes for Make's app review. **Search extraction jobs** no longer has the **URL** filter, because the API dropped it on purpose and answers 400 when it is set. A scenario that had the URL filter set now gets its jobs unfiltered, up to **Limit**, instead of a 400. Its pagination now uses Make's `{{pagination.page}}`. **Limit** fields on the two search modules default to 10 and use Make's standard help text. **Search website URLs** now leaves **Include subdomains** off by default, like the API. Labels are in sentence case and output labels match the inputs. Every input has help text. Module keys, field keys and the connection are unchanged, so existing scenarios keep working, and existing modules keep the values they were saved with.

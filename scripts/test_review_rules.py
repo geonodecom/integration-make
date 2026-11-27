@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import re
 import unittest
 
 APP_ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -109,6 +110,22 @@ class ReviewRulesTest(unittest.TestCase):
             self.assertEqual({code: error[code]["type"] for code in types}, types, relative)
             for code in types:
                 self.assertEqual(error[code]["message"], error["message"], f"{relative}: {code}")
+
+    def test_job_ids_in_paths_are_checked(self) -> None:
+        # A job ID goes into the URL path, so "../statistics" must not reach another route.
+        def requests(path):  # api.imljson is one request or a list of them
+            api = load(path)
+            return api if isinstance(api, list) else [api]
+
+        modules = [path.parent for path in module_files("api.imljson")
+                   if any("{{parameters.job_id}}" in r.get("url", "") for r in requests(path))]
+        self.assertEqual(len(modules), 5)
+        for module in modules:
+            job_id = next(f for f in load(module / "expect.imljson") if f["name"] == "job_id")
+            pattern = re.compile(job_id["validate"]["pattern"])
+            self.assertTrue(pattern.fullmatch("01a21393-fafa-75e6-a79a-df792e21ccab"), module.name)
+            for bad in ("../statistics", "a/b", "a?b", "a#b", ""):
+                self.assertIsNone(pattern.fullmatch(bad), f"{module.name}: {bad!r}")
 
     def test_api_key_is_sanitized(self) -> None:
         for relative in ("base.imljson", "connections/api-key/api.imljson"):
